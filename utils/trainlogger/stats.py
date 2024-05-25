@@ -14,13 +14,13 @@ def topStats(user, stat):
 
         # Process each row in the CSV
         for row in reader:
-            # Row format: TrainID, TrainType, Date, Line, Start, End
-            line = row[3]
-            start_station = row[4]
-            end_station = row[5]
-            set = row[0]
-            type = row[1]
-            date = row[2]
+            # Row format: LogID, TrainID, TrainType, Date, Line, Start, End
+            line = row[4]
+            start_station = row[5]
+            end_station = row[6]
+            set = row[1]
+            type = row[2]
+            date = row[3]
             # Update counters
             line_counter.update([line])
             station_counter.update([start_station, end_station])

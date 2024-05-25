@@ -6,6 +6,8 @@ leaderboard.csv
 logs.txt
 userdata/
 utils/game/scores/
+utils/trainlogger/userdatabackup
+photo-submissions/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

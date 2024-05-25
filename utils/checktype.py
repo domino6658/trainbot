@@ -1,5 +1,4 @@
-
-def trainType(number):
+def checkTrainType(number):
     car = str(number).upper()
     try:
         if car.endswith("M"):
@@ -7,7 +6,7 @@ def trainType(number):
             try:
                 car = int(car)
             except:
-                return(f"Train type not found for {number}")
+                return None
             
             if car >= 9001 and int(car) <= 9070 or int(car) >= 9101 and int(car) <= 9170 or int(car) >= 9201 and int(car) <= 9270 or int(car) >= 9301 and int(car) <= 9370 or int(car) >= 9701 and int(car) <= 9770 or int(car) >= 9801 and int(car) <= 9870 or int(car) >= 9901 and int(car) <= 9970:
                 return "HCMT"
@@ -24,14 +23,14 @@ def trainType(number):
             if car >= 701 and car <= 844:
                 return "Siemens Nexas"
             else:
-                return(f"Train type not found for {number}")
+                return None
         elif car.endswith("T"):
     
             car = car.rstrip(car[-1])
             try:
                 car = int(car)
             except:
-                return(f"Train type not found for {number}")
+                return None
             if car >= 1131 and car <= 1190:
                 return "Alstom Comeng"
             elif car >= 1001 and car <= 1084:
@@ -47,7 +46,7 @@ def trainType(number):
             if car >= 2501 and car <= 2572:
                 return "Siemens Nexas"
             else:
-                return(f"Train type not found for {number}")
+                return None
             
         if car.startswith("N"):
             car = car.lstrip("N")
@@ -61,7 +60,7 @@ def trainType(number):
             if car >= 451 and car <= 475:
                 return "N Class"
             else:
-                return(f"Train type not found for {number}")
+                return None
             
         if car.startswith("K"):
             return("K Class")
@@ -79,11 +78,9 @@ def trainType(number):
         elif (7001 <= int(car) <= 7022):
             return "Sprinter"
 
-
-        
         else:
-            return(f"Train type not found for {number}")
-    
+            return None
     except Exception as e:
         print(f"Error: {e}")
+    return None
         

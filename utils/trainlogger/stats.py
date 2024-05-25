@@ -62,6 +62,3 @@ def topStats(user, stat):
         #     results.append(f"{station}: {count} times")
         print(results)
         return results
-        
-        
-topStats('xm9g', 'line')

@@ -229,12 +229,12 @@ async def line_info(ctx, line: str):
     color = genColor(description)
     print(f"Status color: {color}")
     
-    
-    embed = discord.Embed(title=f"Route Information - {route_name}", color=color)
-    embed.add_field(name="Route Name", value=route_name, inline=False)
-    embed.add_field(name="Status Description", value=description, inline=False)
+    embed = discord.Embed(title=f'**__{description}__**', color=color)
+    embed.set_author(name=f"{route_name} Line")
+    # embed.add_field(name=description, value='', inline=False)
     if disruptionDescription:
-        embed.add_field(name="Disruption Info",value=disruptionDescription, inline=False)
+        embed.add_field(name='Distruption Info',value=disruptionDescription, inline=False)
+        
 
     
     await ctx.response.send_message(embed=embed)
@@ -458,56 +458,6 @@ async def route(ctx, rtype: str, number: int):
 
 
 
-# Photo search
-@search.command(name="photo", description="Search for xm9g's railway photos")
-@app_commands.describe(number="Carriage number")
-async def line_info(ctx, number: str):
-    channel = ctx.channel
-    search_query = number.upper()
-    photo_url = f"https://railway-photos.xm9g.xyz/photos/{search_query}.jpg"
-    await ctx.response.send_message(f"Searching for `{search_query}`...")
-
-   
-
-    # Make a HEAD request to check if the photo exists
-    URLresponse = requests.head(photo_url)
-    if URLresponse.status_code == 200:
-        await channel.send(photo_url)
-    else:
-        mAdded = search_query+'M'
-        
-        
-        # try with m added
-        photo_url = f"https://railway-photos.xm9g.xyz/photos/{mAdded}.jpg"
-        URLresponse = requests.head(photo_url)
-        if URLresponse.status_code == 200:
-            await channel.send(photo_url)
-            for i in range(2,5):
-                photo_url = f"https://railway-photos.xm9g.xyz/photos/{mAdded}-{i}.jpg"
-                print(f"searching for other images for {mAdded}")
-                print(f"url: {photo_url}")
-                URLresponse = requests.head(photo_url)
-                if URLresponse.status_code == 200:
-                    await channel.send(photo_url)
-                else:
-                    print("no other images found")
-                    await channel.send(f"Photo not in xm9g database!")
-                    break
-
-        
-        
-    for i in range(2,5):
-        photo_url = f"https://railway-photos.xm9g.xyz/photos/{search_query}-{i}.jpg"
-        print(f"searching for other images for {search_query}")
-        print(f"url: {photo_url}")
-        URLresponse = requests.head(photo_url)
-        if URLresponse.status_code == 200:
-            await channel.send(photo_url)
-        else:
-            print("no other images found")
-            break
-
-
 # Wongm search
 @search.command(name="wongm", description="Search Wongm's Rail Gallery")
 @app_commands.describe(search="search")
@@ -525,29 +475,21 @@ async def line_info(ctx, search: str):
 @search.command(name="train", description="Find trips for a specific Metro train")
 @app_commands.describe(train="train")
 async def train_line(ctx, train: str):
-    await ctx.response.send_message(f"Searching, trip data may take longer to send...")
     channel = ctx.channel
-    type = trainType(train)
+    type = checkTrainType(train)
     print(f"TRAINTYPE {type}")
     if type == None:
-        await channel.send("Train not found")
+        await ctx.response.send_message(f"Error: Train `{train.upper()}` not found")
         
     else:
-        embed = discord.Embed(title=f"Info for {train.upper()}:", color=0x0070c0)
-        
-        embed.add_field(name="Type:", value=type)
-        if train.upper() == "7005": # Only old livery sprinter
-            embed.set_thumbnail(url="https://xm9g.xyz/discord-bot-assets/MPTB/Sprinter-VLine.png")
-        else:
-            embed.set_thumbnail(url=getIcon(type))
-        embed.set_image(url=getImage(train.upper()))
+        embed = discord.Embed(title=f"Info for {train.upper()}", color=0x0070c0)
+        embed.add_field(name='Type:',value=type)
+        embed.add_field(name='Set:',value=setNumber(train.upper()),inline=False)
+        embed.set_thumbnail(url=getIcon(type))
+        # embed.set_image(url=getImage(train.upper()))
     
         # additional embed fields:
-        embed.add_field(name="Source:", value=f"[TransportVic (Data)](https://vic.transportsg.me/metro/tracker/consist?consist={train.upper()})\n[XM9G (Image)](https://railway-photos.xm9g.xyz#:~:text={train.upper()})\n[MPTG (Icon)](https://melbournesptgallery.weebly.com/melbourne-train-and-tram-fronts.html)", inline=False)
-        await channel.send(embed=embed)
-        
-        # seperated the runs to a seperate thing cause its slow
-        embed = discord.Embed(title=f"Current runs for {train.upper()}:", color=0x0070c0)
+        await ctx.response.send_message(embed=embed)
 
         # Run transportVicSearch in a separate thread
         loop = asyncio.get_event_loop()
@@ -555,16 +497,17 @@ async def train_line(ctx, train: str):
         await task
 
 async def transportVicSearch_async(ctx, train):
-    embed = discord.Embed(title=f"Current runs for {train.upper()}:", color=0x0070c0)
+    embed = discord.Embed(title=f"Current trips for {train.upper()}:", color=0x0070c0)
 
     runs = await asyncio.to_thread(transportVicSearch, train)  # find runs in a separate thread
-    if isinstance(runs, list):
+    if runs != 'none':
         print("thing is a list")
         for i, run in enumerate(runs):
-            embed.add_field(name=f"Trip {i+1}", value=run, inline=False)
+            embed.add_field(name=f"{i+1}. {run[1]} ({run[0]})", value=f'{run[2]}', inline=False)
         await ctx.channel.send(embed=embed)
     else:
-        await ctx.channel.send(f"No runs currently found for {train.upper()}")
+        embed = discord.Embed(title=f"No trips found for {train.upper()}.", color=0x0070c0)
+        await ctx.channel.send(embed=embed)
 
 
 
@@ -687,7 +630,7 @@ async def game(ctx, ultrahard: bool=False, rounds: int = 1):
                     embed.color = 0xff6565
             
             embed.set_image(url=url)
-            embed.set_footer(text=f"Photo by {credit}. DM @xm9g to submit a photo")
+            embed.set_footer(text=f"Photo by {credit}. DM @domino6658 to submit a photo")
             embed.set_author(name=f"Round {round+1}/{rounds}")
 
             # Send the embed message
@@ -715,9 +658,9 @@ async def game(ctx, ultrahard: bool=False, rounds: int = 1):
                     # Check if the user's response matches the correct station
                     if user_response.content[1:].lower() == station.lower():
                         if ultrahard:
-                            await ctx.channel.send(f"{user_response.author.mention} guessed it right!")
+                            await ctx.channel.send(f"{user_response.author.mention} guessed it correctly!")
                         else:
-                            await ctx.channel.send(f"{user_response.author.mention} guessed it right! {station.title()} was the correct answer!")
+                            await ctx.channel.send(f"{user_response.author.mention} guessed it correctly! The answer was {station.title()}!")
                         correct = True
                         if ultrahard:
                             addLb(user_response.author.id, user_response.author.name, 'ultrahard')
@@ -725,13 +668,13 @@ async def game(ctx, ultrahard: bool=False, rounds: int = 1):
                             addLb(user_response.author.id, user_response.author.name, 'guesser')
                             
                     elif user_response.content.lower() == '!skip':
-                        if user_response.author.id in [ctx.user.id,707866373602148363,780303451980038165] :
+                        if user_response.author.id in [ctx.user.id,707866373602148363] :
                             await ctx.channel.send(f"Round {round+1} skipped.")
                             break
                         else:
                             await ctx.channel.send(f"{user_response.author.mention} you can only skip the round if you were the one who started it.")
                     elif user_response.content.lower() == '!stop':
-                        if user_response.author.id in [ctx.user.id,707866373602148363,780303451980038165] :
+                        if user_response.author.id in [ctx.user.id,707866373602148363] :
                             await ctx.channel.send(f"Game ended.")
                             return
                         else:
@@ -949,13 +892,13 @@ async def testthing(ctx, direction: str = 'updown', rounds: int = 1):
                         
                         correct = True 
                     elif user_response.content.lower() == '!skip':
-                        if user_response.author.id in [ctx.user.id,707866373602148363,780303451980038165] :
-                            await ctx.channel.send(f"Round {round+1} skipped. The answer was ||{correct_list[0]}, {correct_list[1]}{f', {correct_list[2]}' if len(correct_list) >=3 else ''}{f', {correct_list[3]}' if len(correct_list) >=4 else ''}{f', {correct_list[4]}' if len(correct_list) >=5 else ''}||")
+                        if user_response.author.id in [ctx.user.id,707866373602148363] :
+                            await ctx.channel.send(f"Round {round+1} skipped. The answer was `{correct_list[0]}, {correct_list[1]}{f', {correct_list[2]}' if len(correct_list) >=3 else ''}{f', {correct_list[3]}' if len(correct_list) >=4 else ''}{f', {correct_list[4]}' if len(correct_list) >=5 else ''}`")
                             break
                         else:
                             await ctx.channel.send(f"{user_response.author.mention} you can only skip the round if you were the one who started it.")
                     elif user_response.content.lower() == '!stop':
-                        if user_response.author.id in [ctx.user.id,707866373602148363,780303451980038165] :
+                        if user_response.author.id in [ctx.user.id,707866373602148363] :
                             await ctx.channel.send(f"Game ended.")
                             return
                         else:
@@ -1041,7 +984,7 @@ async def logtrain(ctx, number: str, date:str='today', line:str='Unknown', start
         if set == None:
             await ctx.response.send_message(f'Invalid train number: {number.upper()}',ephemeral=True)
             return
-        type = trainType(number.upper())
+        type = checkTrainType(number.upper())
 
         # Add train to the list
         addTrain(ctx.user.name, set, type, savedate, line, start.title(), end.title())

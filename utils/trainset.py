@@ -1,5 +1,4 @@
-def setNumber(input_str):
-    all_sets = [
+all_sets = [
         # COMENG/XTRAP
         '1M-1301T-2M',
         '3M-1302T-4M',
@@ -693,6 +692,8 @@ def setNumber(input_str):
         "N461-", "N462-", "N463-", "N464-", "N465-", "N466-", "N467-", "N468-", "N469-", "N470-",
         "N471-", "N472-", "N473-", "N474-", "N475-"
         ]
+
+def setNumber(input_str):
 
     for set_str in all_sets:
         temp = set_str.split('-')

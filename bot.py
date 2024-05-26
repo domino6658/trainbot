@@ -157,7 +157,7 @@ async def task_loop():
         print("Rare checker not enabled!")
 
     
-# /search metro-line
+# /search metro-line BROKEN
     
 @search.command(name="metro-line", description="Show info about a Metro line")
 @app_commands.describe(line = "What Metro line to show info about?")
@@ -180,6 +180,10 @@ async def task_loop():
 ])
 
 async def line_info(ctx, line: str):
+    embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
+    await ctx.response.send_message(embed=embed,ephemeral=True)
+    return
+
     json_info_str = route_api_request(line, "0")
     json_info_str = json_info_str.replace("'", "\"")  # Replace single quotes with double quotes
     json_info = json.loads(json_info_str)
@@ -238,11 +242,14 @@ async def line_info(ctx, line: str):
                 file.write(f"\n{datetime.datetime.now()} - user sent line info command with input {line}")
 
 
-# / search run
+# / search run BROKEN
 
 @search.command(name="run", description="Show runs for a route")
 @app_commands.describe(runid = "route id")
 async def runs(ctx, runid: str):
+    embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
+    await ctx.response.send_message(embed=embed,ephemeral=True)
+    return
     
     api_response = runs_api_request(runid)
     json_response = json.dumps(api_response)
@@ -273,7 +280,7 @@ async def runs(ctx, runid: str):
                 file.write(f"\n{datetime.datetime.now()} - user sent run search command with input {runid}")
 
 
-# /search route
+# /search route BROKEN
 
 @search.command(name="route", description="Show info about a tram or bus route")
 @app_commands.describe(rtype = "What type of transport is this route?")
@@ -287,6 +294,10 @@ async def runs(ctx, runid: str):
 @app_commands.describe(number = "What route number to show info about?")
 
 async def route(ctx, rtype: str, number: int):    
+    embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
+    await ctx.response.send_message(embed=embed,ephemeral=True)
+    return
+    
     try:
         json_info_str = route_api_request(number, rtype)
         json_info_str = json_info_str.replace("'", "\"")  # Replace single quotes with double quotes

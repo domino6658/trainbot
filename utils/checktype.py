@@ -7,20 +7,17 @@ def checkTrainType(number):
                 car = int(car)
             except:
                 return None
-            
-            if car >= 9001 and int(car) <= 9070 or int(car) >= 9101 and int(car) <= 9170 or int(car) >= 9201 and int(car) <= 9270 or int(car) >= 9301 and int(car) <= 9370 or int(car) >= 9701 and int(car) <= 9770 or int(car) >= 9801 and int(car) <= 9870 or int(car) >= 9901 and int(car) <= 9970:
-                return "HCMT"
-            elif car >= 561 and car <= 680:
+            if car >= 561 and car <= 680:
                 return "Alstom Comeng"
             elif car >= 301 and car <= 468:
                 return "EDI Comeng"
             elif car >= 471 and car <= 554:
                 return "EDI Comeng"
-            if car >= 1 and car <= 288:
+            elif car >= 1 and car <= 288:
                 return "X'Trapolis 100"
-            if car >= 851 and car <= 986:
+            elif car >= 851 and car <= 986:
                 return "X'Trapolis 100"
-            if car >= 701 and car <= 844:
+            elif car >= 701 and car <= 844:
                 return "Siemens Nexas"
             else:
                 return None
@@ -37,16 +34,24 @@ def checkTrainType(number):
                 return "EDI Comeng"
             elif car >= 1086 and car <= 1127:
                 return "EDI Comeng"
-            if car >= 1301 and car <= 1444:
+            elif car >= 1301 and car <= 1444:
                 return "X'Trapolis 100"
-            if car >= 1626 and car <= 1693:
+            elif car >= 1626 and car <= 1693:
                 return "X'Trapolis 100"
-            if car >= 851 and car <= 986:
+            elif car >= 851 and car <= 986:
                 return "X'Trapolis100"
-            if car >= 2501 and car <= 2572:
+            elif car >= 2501 and car <= 2572:
                 return "Siemens Nexas"
             else:
                 return None
+        else:
+            try:
+                car = int(car)
+            except:
+                return None
+            
+            if car >= 9001 and int(car) <= 9070 or int(car) >= 9101 and int(car) <= 9170 or int(car) >= 9201 and int(car) <= 9270 or int(car) >= 9301 and int(car) <= 9370 or int(car) >= 9701 and int(car) <= 9770 or int(car) >= 9801 and int(car) <= 9870 or int(car) >= 9901 and int(car) <= 9970:
+                return "HCMT"
             
         if car.startswith("N"):
             car = car.lstrip("N")

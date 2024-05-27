@@ -105,7 +105,7 @@ def transportVicSearchStation(search):
         print(f'{i+1}/{len(departureshtml)}')
         soup = BeautifulSoup(str(departureshtml[i]),'lxml')
         try:
-            departureresult = [soup.find(class_='bigNumber').text,soup.find(class_='towards').text.split(' Line towards')[0],soup.find(class_='destination').text,f'{"Now" if len(soup.find(class_='timings').text.split(' min')) == 1 else soup.find(class_='timings').text.split(' min')[0]}']
+            departureresult = [soup.find(class_='bigNumber').text,soup.find(class_='towards').text.split(' Line towards')[0],soup.find(class_='destination').text,f'{"Now" if len(soup.find(class_="timings").text.split(" min")) == 1 else soup.find(class_="timings").text.split(" min")[0]}']
             timings = soup.find(class_='timings')
             soup2 = BeautifulSoup(str(timings),'lxml')
             for a in soup2.find_all('a',href=True):

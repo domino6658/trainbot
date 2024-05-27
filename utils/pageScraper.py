@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import lxml
+import time
 
 
 def transportVicSearch(search):
@@ -78,3 +80,55 @@ def transportVicSearch(search):
             return 'none'
     except Exception as e:
         return(f'Error: {e}')
+    
+def transportVicSearchStation(search):
+    
+    url = search.lower().replace(' ','-')
+    url = f'https://vic.transportsg.me/metro/timings/{url}'
+    print(url)
+    
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+
+    departureshtml = soup.find_all(class_='departure')
+
+    if not departureshtml:
+        print('none')
+        return 'none'
+
+    result = []
+    for i in range(0,len(departureshtml)):
+        if i == 10:
+            break
+        print()
+        print(f'{i+1}/{len(departureshtml)}')
+        soup = BeautifulSoup(str(departureshtml[i]),'lxml')
+        try:
+            departureresult = [soup.find(class_='bigNumber').text,soup.find(class_='towards').text.split(' Line towards')[0],soup.find(class_='destination').text,f'{'Now' if len(soup.find(class_='timings').text.split(' min')) == 1 else soup.find(class_='timings').text.split(' min')[0]}']
+            timings = soup.find(class_='timings')
+            soup2 = BeautifulSoup(str(timings),'lxml')
+            for a in soup2.find_all('a',href=True):
+                if 'timing' in str(a['class']):
+                    url = f'https://vic.transportsg.me{str(a['href'])}'
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, "lxml")
+            set = soup.find(class_="consist")
+            if set == None:
+                departureresult.append(None)
+            else:
+                departureresult.append(set.text)
+            # departureresult.insert(2,soup.find(id='header').text.split(' to ')[1].split('Home')[0])
+            result.append(departureresult)
+
+            print(departureresult)
+        except AttributeError:
+            pass
+    print('done')
+    print(result)
+    return result
+
+    
+
+
+# transportVicSearchStation('flinders street') 

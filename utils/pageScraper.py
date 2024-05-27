@@ -110,7 +110,7 @@ def transportVicSearchStation(search):
             soup2 = BeautifulSoup(str(timings),'lxml')
             for a in soup2.find_all('a',href=True):
                 if 'timing' in str(a['class']):
-                    url = f'https://vic.transportsg.me{str(a['href'])}'
+                    url = f'https://vic.transportsg.me{str(a["href"])}'
             page = requests.get(url)
             soup = BeautifulSoup(page.content, "lxml")
             set = soup.find(class_="consist")

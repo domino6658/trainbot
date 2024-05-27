@@ -515,7 +515,11 @@ async def search_departures(ctx, station: str):
 
 async def search_departures_inthread(ctx,station):
     result = transportVicSearchStation(station)
-    embed = discord.Embed(title=f"{f'Next {len(result)} Departure{'s' if len(result) > 1 else ''} for {station} Station' if len(result) != 0 else f'{station} Station has no scheduled departures'}")
+    if len(result) != 0:
+        embed = discord.Embed(title=    f'Next {len(result)} Departure{'s' if len(result) > 1 else ''} for {station} Station')
+    else:
+        embed = discord.Embed(title=f'{station} Station has no scheduled departures')
+    
     await ctx.channel.send(embed=embed)
     i = 0
     for departure in result:

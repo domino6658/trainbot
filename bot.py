@@ -507,7 +507,7 @@ async def transportVicSearch_async(ctx: commands.Context, train):
 async def search_departures(ctx, station: str, show_all: bool = False):
     channel = ctx.channel
 
-    await ctx.response.send_message(f'Getting the next {'' if show_all else '10 '}departures...{' (This might take a minute)' if show_all else ''}')
+    await ctx.response.send_message(f'Getting the next {"" if show_all else "10 "}departures...{" (This might take a minute)" if show_all else ""}')
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(search_departures_inthread(ctx,station,show_all))

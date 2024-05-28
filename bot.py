@@ -504,26 +504,47 @@ async def transportVicSearch_async(ctx: commands.Context, train):
 @search.command(name="departures", description="Find trips for a specific Metro train")
 @app_commands.describe(station="station")
 @app_commands.autocomplete(station=station_autocompletion)
-async def search_departures(ctx, station: str):
+async def search_departures(ctx, station: str, show_all: bool = False):
     channel = ctx.channel
 
-    await ctx.response.send_message('Getting the next departures...')
+    await ctx.response.send_message(f'Getting the next {'' if show_all else '10 '}departures...{' (This might take a minute)' if show_all else ''}')
 
     loop = asyncio.get_event_loop()
-    task = loop.create_task(search_departures_inthread(ctx,station))
+    task = loop.create_task(search_departures_inthread(ctx,station,show_all))
     await task
 
-async def search_departures_inthread(ctx,station):
-    result = transportVicSearchStation(station)
-    if len(result) != 0:
-        if len(result) > 1:
-            embed = discord.Embed(title=    f'Next {len(result)} Departures for {station} Station')
-        else:
-            embed = discord.Embed(title=    f'Next {len(result)} Departure for {station} Station')
-    else:
-        embed = discord.Embed(title=f'{station} Station has no scheduled departures')
+async def search_departures_inthread(ctx,station,show_all):
+    result = transportVicSearchStation(station,show_all)
     
-    await ctx.channel.send(embed=embed)
+    if result in ['none' or None]:
+        embed = discord.Embed(title=f'There was an error getting {station.title()} Station\'s scheduled departures')
+        await ctx.channel.send(embed=embed)
+        return
+        
+    if len(result) == 0:
+        embed = discord.Embed(title=f'{station.title()} Station has no scheduled departures')
+        await ctx.channel.send(embed=embed)
+        return
+    
+    if len(result) > 1:
+        embed = discord.Embed(title=f'Next {len(result)} Departures for {station.title()} Station')
+    else:
+        embed = discord.Embed(title=f'Next {len(result)} Departure for {station.title()} Station')
+    
+    # check if show all departures
+    if show_all:
+        # create thread
+        departuresthread = await ctx.channel.create_thread(
+            name=f'Departures for {station.title()} Station',
+            auto_archive_duration=60,
+            type=discord.ChannelType.public_thread
+        )
+        
+        # send reponse message
+        await ctx.channel.send(f"Departures will be sent in <#{departuresthread.id}>")
+        await departuresthread.send(embed=embed)
+    else:
+        await ctx.channel.send(embed=embed)
     i = 0
     for departure in result:
         i += 1
@@ -533,7 +554,7 @@ async def search_departures_inthread(ctx,station):
                 car = departure[4].split('-')[0]
                 type = checkTrainType(car)
                 embed.add_field(name='Type:',value=type)
-                embed.add_field(name='Set:',value=setNumber(car),inline=False)
+                embed.add_field(name='Set:',value=departure[4],inline=False)
                 embed.set_thumbnail(url=getIcon(type))
             else:
                 embed.add_field(name='Type:',value='Unknown')
@@ -556,7 +577,10 @@ async def search_departures_inthread(ctx,station):
             
             embed.add_field(name="Destination:",value=departure[2],inline=True)
 
-            await ctx.channel.send(embed=embed)
+            if show_all:
+                await departuresthread.send(embed=embed)
+            else:
+                await ctx.channel.send(embed=embed)
         except IndexError:
             pass
 

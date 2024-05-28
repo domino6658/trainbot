@@ -81,7 +81,7 @@ def transportVicSearch(search):
     except Exception as e:
         return(f'Error: {e}')
     
-def transportVicSearchStation(search):
+def transportVicSearchStation(search,show_all):
     
     url = search.lower().replace(' ','-')
     url = f'https://vic.transportsg.me/metro/timings/{url}'
@@ -98,14 +98,29 @@ def transportVicSearchStation(search):
         return 'none'
 
     result = []
+    x = -1
     for i in range(0,len(departureshtml)):
-        if i == 10:
+        x +=1
+        if not show_all and x == 10:
             break
         print()
         print(f'{i+1}/{len(departureshtml)}')
         soup = BeautifulSoup(str(departureshtml[i]),'lxml')
         try:
-            departureresult = [soup.find(class_='bigNumber').text,soup.find(class_='towards').text.split(' Line towards')[0],soup.find(class_='destination').text,f'{"Now" if len(soup.find(class_="timings").text.split(" min")) == 1 else soup.find(class_="timings").text.split(" min")[0]}']
+            departureresult = []
+            departureresult.append(soup.find(class_='bigNumber').text)
+            departureresult.append(soup.find(class_='towards').text.split(' Line towards')[0])
+            departureresult.append(soup.find(class_='destination').text)
+            if len(soup.find(class_="timings").text.split(" min")) == 1:
+                if len(soup.find(class_="timings").text.split("ow")) == 2:
+                    departureresult.append("Now")
+                else:
+                    departureresult.append(str(int(soup.find(class_="timings").text.split(' h')[0])*60))
+            elif len(soup.find(class_="timings").text.split(" min")[0].split(' h ')) == 1: 
+                departureresult.append(soup.find(class_="timings").text.split(" min")[0])
+            else:
+                departureresult.append(str((int(soup.find(class_="timings").text.split(" min")[0].split(' h ')[0])*60)+int(soup.find(class_="timings").text.split(" min")[0].split(' h ')[1])))
+
             timings = soup.find(class_='timings')
             soup2 = BeautifulSoup(str(timings),'lxml')
             for a in soup2.find_all('a',href=True):
@@ -118,6 +133,8 @@ def transportVicSearchStation(search):
                 departureresult.append(None)
             else:
                 departureresult.append(set.text)
+            if departureresult == None:
+                x += 1
             # departureresult.insert(2,soup.find(id='header').text.split(' to ')[1].split('Home')[0])
             result.append(departureresult)
 

@@ -242,7 +242,7 @@ def transportVicSearchStation(search,show_all):
 def transportVicSearchLine(line):
     print(f'searching for trips on {line} line')
 
-    url = f'https://vic.transportsg.me/metro/tracker/line?line={line.replace(' ','+')}'
+    url = f'https://vic.transportsg.me/metro/tracker/line?line={line.replace(" "," ")}'
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")

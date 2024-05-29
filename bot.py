@@ -42,9 +42,6 @@ for line in file:
         metro_stations_list.append(line)
 file.close()
 
-rareCheckerOn = True
-
-
 # reading config file
 
 config = dotenv_values(".env")
@@ -54,6 +51,7 @@ STARTUP_CHANNEL_ID = int(config['STARTUP_CHANNEL_ID']) # channel id to send the 
 RARE_SERVICE_CHANNEL_ID = int(config['RARE_SERVICE_CHANNEL_ID'])
 COMMAND_PREFIX = config['COMMAND_PREFIX']
 USER_ID = config['USER_ID']
+RARE_SERVICE_SEARCHER = config['RARE_SERVICE_SEARCHER']
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=discord.Intents.all())
 log_channel = bot.get_channel(STARTUP_CHANNEL_ID)
@@ -161,9 +159,9 @@ async def on_ready():
     with open('logs.txt', 'a') as file:
         file.write(f"\n{datetime.datetime.now()} - Bot started")
     await channel.send(f"<@{USER_ID}> Bot is online! {convert_to_unix_time(datetime.datetime.now())}")
-    if rareCheckerOn:
+    if RARE_SERVICE_SEARCHER == 'on':
         task_loop.start()
-        print('its started')
+        print('Rare service searcher is enabled!')
 
 
 # rare service finder

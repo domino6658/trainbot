@@ -266,7 +266,6 @@ def transportVicSearchLine(line):
                 trip.append(checkTrainType(trip[2].split('-')[0]))
                 trip.append(line)
                 tripsformatted.append(trip)
-            print(tripsformatted)
             return tripsformatted
             
         else:
@@ -280,18 +279,19 @@ def findRareServices(inputline):
     if inputline == 'all':
         for line in linelist:
             tripsforline = transportVicSearchLine(line)
-
-            for trip in tripsforline:
-                # print(trip)
-                car = trip[2].split('-')[0]
-                
-                # print(f'trains on line: {trains_on_lines[line]}')
-                if checkTrainType(car) not in trains_on_lines[line]:
-                    print('alert!')
-                    print(trip)
-                    print(f'car: {car}')
-                    print(f'type: {checkTrainType(car)}')
-                    rareservices.append(trip)
+            # print(tripsforline)
+            if tripsforline not in ['none',None]:
+                for trip in tripsforline:
+                    # print(trip)
+                    car = trip[2].split('-')[0]
+                    
+                    # print(f'trains on line: {trains_on_lines[line]}')
+                    if checkTrainType(car) not in trains_on_lines[line]:
+                        print('alert!')
+                        print(trip)
+                        print(f'car: {car}')
+                        print(f'type: {checkTrainType(car)}')
+                        rareservices.append(trip)
     else:
         tripsforline = transportVicSearchLine(inputline)
 

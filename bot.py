@@ -23,7 +23,6 @@ from utils.stats import *
 from utils.pageScraper import *
 from utils.trainImage import *
 from utils.checktype import *
-from utils.rareTrain import *
 from utils.montagueAPI import *
 from utils.map.map import *
 from utils.game.lb import *
@@ -43,7 +42,7 @@ for line in file:
         metro_stations_list.append(line)
 file.close()
 
-rareCheckerOn = False
+rareCheckerOn = True
 
 
 # reading config file
@@ -163,61 +162,57 @@ async def on_ready():
         file.write(f"\n{datetime.datetime.now()} - Bot started")
     await channel.send(f"<@{USER_ID}> Bot is online! {convert_to_unix_time(datetime.datetime.now())}")
     if rareCheckerOn:
-        try:
-            task_loop.start()
-        except:
-            print("WARNING: Rare train checker is not enabled!")
-            await channel.send(f"WARNING: Rare train checker is not enabled! <@{USER_ID}>")
+        task_loop.start()
+        print('its started')
 
 
 # rare service finder
 
-def check_rare_trains_in_thread():
-    rare_trains = checkRareTrainsOnRoute()
-    asyncio.run_coroutine_threadsafe(log_rare_trains(rare_trains), bot.loop)
-
-async def log_rare_trains(rare_trains):
-    log_channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
-    channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
-
-    if rare_trains:
-        embed = discord.Embed(title="Trains found on lines they are not normally on!", color=0xf23f42)
-
-        for route in rare_trains:
-            parts = route.split(' - Train ')
-            route_name = parts[0]
-            train_type = parts[1]
-            
-            # Extract the train name and train info from train_type
-            train_name, train_info = train_type.split('\n') if '\n' in train_type else ('Unknown train name', 'Unknown train type')
-
-            embed.add_field(name=route_name, value=f"{train_name}\n{train_info}", inline=True)
-
-        try:
-            await channel.send(embed=embed)
-            with open('logs.txt', 'a') as file:
-                file.write(f"\n{datetime.datetime.now()} - Sent rare trains")
-        except discord.HTTPException:
-            await channel.send("Embed too big! There are many trains on the wrong line. Check ANYTRIP.")
-            with open('logs.txt', 'a') as file:
-                file.write(f"\n{datetime.datetime.now()} - Sent rare trains but it was too long")
-        await channel.send('<@&1227171023795781694> Trains found on lines they are not normally on!\n`Due to errors in the PTV api data out of our control, some data may be inaccurate.`')
-    else:
-        await log_channel.send("None found")
-
 @tasks.loop(minutes=10)
 async def task_loop():
-    if rareCheckerOn:
-        log_channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
-        await log_channel.send("Checking for trains on lines they aren't meant for")
-        with open('logs.txt', 'a') as file:
-            file.write(f"\n{datetime.datetime.now()} - Checking for rare trains")
+    print('its on')
+    log_channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
+    await log_channel.send(f'Searching for rare services...')
 
-        # Create a new thread to run checkRareTrainsOnRoute
-        thread = threading.Thread(target=check_rare_trains_in_thread)
-        thread.start()
-    else:
-        print("Rare checker not enabled!")
+    # Create a new thread to run checkRareTrainsOnRoute
+    thread = threading.Thread(target=search_rare_services_in_thread)
+    thread.start()
+
+def search_rare_services_in_thread():
+    rareservices = findRareServices('all')
+    asyncio.run_coroutine_threadsafe(log_rare_services(rareservices), bot.loop)
+
+async def log_rare_services(result):
+    channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
+
+    if result in ['none' or None]:
+        embed = discord.Embed(title=f'There was an error getting rare services')
+        await channel.send(embed=embed)
+        return
+        
+    if len(result) == 0:
+        embed = discord.Embed(title=f'No rare services found')
+        await channel.send(embed=embed)
+        return
+    
+    await channel.send('<@&1227743193538498622>')
+    embed = discord.Embed(title=f'{len(result)} Rare Service{'' if len(result) == 1 else 's'} found!')
+    await channel.send(embed=embed)
+
+    i = 0
+    for trip in result:
+        i += 1
+        time = trip[0]
+        desto = trip[1]
+        set = trip[2]
+        type = trip[3]
+        line = trip[4]
+        embed = discord.Embed(title=f'{i}. {desto} ({time})', color=lines_dictionary[line][1])
+        embed.add_field(name='Line:',value=line)
+        embed.add_field(name='Type:',value=type)
+        embed.add_field(name='Set:',value=set,inline=False)
+        embed.set_thumbnail(url=getIcon(type))
+        await channel.send(embed=embed)
 
     
 # /search metro-line BROKEN
@@ -528,6 +523,7 @@ async def transportVicSearch_async(ctx: commands.Context, train):
         app_commands.Choice(name="Upfield", value="Upfield"),
         app_commands.Choice(name="Werribee", value="Werribee"),
 ])
+
 async def search_rare_services(ctx, line: str = 'all'):
     channel = ctx.channel
     await ctx.response.send_message(f'Searching for rare services...')

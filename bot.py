@@ -196,7 +196,7 @@ async def log_rare_services(result):
         return
     
     await channel.send('<@&1227743193538498622>')
-    embed = discord.Embed(title=f'{len(result)} Rare Service{'' if len(result) == 1 else 's'} found!')
+    embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')
     await channel.send(embed=embed)
 
     i = 0
@@ -550,7 +550,7 @@ async def search_rare_services_inthread(ctx,inputline):
         return
     
 
-    embed = discord.Embed(title=f'{len(result)} Rare Service{'' if len(result) == 1 else 's'} found!')
+    embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')
     await ctx.channel.send(embed=embed)
 
     i = 0

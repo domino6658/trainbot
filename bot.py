@@ -34,10 +34,13 @@ from utils.trainlogger.ids import *
 
 
 file = open('utils/stations.txt','r')
-stations_list = []
+all_stations_list = []
+metro_stations_list = []
 for line in file:
     line = line.strip()
-    stations_list.append(line)
+    all_stations_list.append(line)
+    if len(metro_stations_list) != 221:
+        metro_stations_list.append(line)
 file.close()
 
 rareCheckerOn = False
@@ -73,14 +76,23 @@ def convert_to_unix_time(date: datetime.datetime) -> str:
     # Convert to unix time
     return f'<t:{int(time.mktime(datetime.datetime(*date_tuple).timetuple()))}:R>'
 
-async def station_autocompletion(
+async def all_station_autocompletion(
     interaction: discord.Interaction,
     current: str
 ) -> typing.List[app_commands.Choice[str]]:
-    fruits = stations_list.copy()
+    stations = all_stations_list.copy()
     return [
-        app_commands.Choice(name=fruit, value=fruit)
-        for fruit in fruits if current.lower() in fruit.lower()
+        app_commands.Choice(name=station, value=station)
+        for station in stations if current.lower() in station.lower()
+    ]
+async def metro_station_autocompletion(
+    interaction: discord.Interaction,
+    current: str
+) -> typing.List[app_commands.Choice[str]]:
+    stations = metro_stations_list.copy()
+    return [
+        app_commands.Choice(name=station, value=station)
+        for station in stations if current.lower() in station.lower()
     ]
 
 lines_dictionary = {
@@ -498,18 +510,86 @@ async def transportVicSearch_async(ctx: commands.Context, train):
 
         await ctx.channel.send(embed=embed)
 
+@search.command(name="rare-services", description="Search for rare services on all lines")
+@app_commands.describe(line = "Line")
+@app_commands.choices(line=[
+        app_commands.Choice(name="Alamein", value="Alamein"),
+        app_commands.Choice(name="Belgrave", value="Belgrave"),
+        app_commands.Choice(name="Craigieburn", value="Craigieburn"),
+        app_commands.Choice(name="Cranbourne", value="Cranbourne"),
+        app_commands.Choice(name="Frankston", value="Frankston"),
+        app_commands.Choice(name="Glen Waverley", value="Glen%20Waverley"),
+        app_commands.Choice(name="Hurstbridge", value="Hurstbridge"),
+        app_commands.Choice(name="Lilydale", value="Lilydale"),
+        app_commands.Choice(name="Mernda", value="Mernda"),
+        app_commands.Choice(name="Pakenham", value="Pakenham"),
+        app_commands.Choice(name="Sandringham", value="Sandringham"),
+        app_commands.Choice(name="Sunbury", value="Sunbury"),
+        app_commands.Choice(name="Upfield", value="Upfield"),
+        app_commands.Choice(name="Werribee", value="Werribee"),
+])
+async def search_rare_services(ctx, line: str = 'all'):
+    channel = ctx.channel
+    await ctx.response.send_message(f'Searching for rare services...')
+
+    loop = bot.loop
+    task = loop.create_task(search_rare_services_inthread(ctx,line))
+    await task
+
+async def search_rare_services_inthread(ctx,inputline):
+    result = findRareServices(inputline)
+    
+    
+    # await ctx.channel.send(result)
+    # return
+
+    if result in ['none' or None]:
+        embed = discord.Embed(title=f'There was an error getting rare services')
+        await ctx.channel.send(embed=embed)
+        return
+        
+    if len(result) == 0:
+        embed = discord.Embed(title=f'No rare services found')
+        await ctx.channel.send(embed=embed)
+        return
+    
+
+    embed = discord.Embed(title=f'{len(result)} Rare Service{'' if len(result) == 1 else 's'} found!')
+    await ctx.channel.send(embed=embed)
+
+    i = 0
+    for trip in result:
+        i += 1
+        time = trip[0]
+        desto = trip[1]
+        set = trip[2]
+        type = trip[3]
+        line = trip[4]
+        embed = discord.Embed(title=f'{i}. {desto} ({time})', color=lines_dictionary[line][1])
+        embed.add_field(name='Line:',value=line)
+        embed.add_field(name='Type:',value=type)
+        embed.add_field(name='Set:',value=set,inline=False)
+        embed.set_thumbnail(url=getIcon(type))
+        await ctx.channel.send(embed=embed)
+
+
+
+
+
 
 # /search station
 
-@search.command(name="departures", description="Find trips for a specific Metro train")
+@search.command(name="departures", description="Search for departures from a station")
 @app_commands.describe(station="station")
-@app_commands.autocomplete(station=station_autocompletion)
+@app_commands.autocomplete(station=metro_station_autocompletion)
 async def search_departures(ctx, station: str, show_all: bool = False):
     channel = ctx.channel
-
+    if station.title() not in metro_stations_list:
+        await ctx.response.send_message(f'Please use the autocomplete function on this command!',ephemeral = True)
+        return
     await ctx.response.send_message(f'Getting the next {"" if show_all else "10 "}departures...{" (This might take a minute)" if show_all else ""}')
 
-    loop = asyncio.get_event_loop()
+    loop = bot.loop
     task = loop.create_task(search_departures_inthread(ctx,station,show_all))
     await task
 
@@ -866,8 +946,8 @@ async def stationordergame(ctx, direction: str = 'updown', rounds: int = 1):
 
 @trainlogs.command(name="add", description="Log a train you have been on")
 @app_commands.describe(number = "Carrige Number", date = "Date in DD/MM/YYYY format", line = 'Train Line', start='Starting Station', end = 'Ending Station')
-@app_commands.autocomplete(start=station_autocompletion)
-@app_commands.autocomplete(end=station_autocompletion)
+@app_commands.autocomplete(start=all_station_autocompletion)
+@app_commands.autocomplete(end=all_station_autocompletion)
 @app_commands.choices(line=[
         app_commands.Choice(name="Alamein", value="Alamein"),
         app_commands.Choice(name="Belgrave", value="Belgrave"),

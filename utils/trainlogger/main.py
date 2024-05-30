@@ -28,7 +28,7 @@ def addTrain(username, date, train_number, train_type, line, start, end):
 
     # Write the data to the CSV file
     try:
-        os.listdir('utils\\trainlogger\\userdata')
+        os.listdir('utils/trainlogger/userdata')
     except FileNotFoundError:
         os.mkdir('utils/trainlogger/userdata')
         id = 0
@@ -86,7 +86,7 @@ def readLogs(username):
 # same as one above but only reads the row you put in   
 def readRow(username, logid):
     try:
-        os.listdir('utils\\trainlogger\\userdata')
+        os.listdir('utils/trainlogger/userdata')
     except FileNotFoundError:
         return 'no data at all'
     

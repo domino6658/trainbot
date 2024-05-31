@@ -210,7 +210,7 @@ async def log_rare_services(result):
     for server in config['rare_service_searcher']['servers']:
         channel = bot.get_channel(server[0])
         role = server[1]
-        
+
         await channel.send(f'<@&{role}>')
         embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')
         await channel.send(embed=embed)
@@ -258,9 +258,9 @@ async def log_rare_services(result):
 ])
 
 async def line_info(ctx, line: str):
-    embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
-    await ctx.response.send_message(embed=embed,ephemeral=True)
-    return
+    # embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
+    # await ctx.response.send_message(embed=embed,ephemeral=True)
+    # return
 
     json_info_str = route_api_request(line, "0")
     json_info_str = json_info_str.replace("'", "\"")  # Replace single quotes with double quotes

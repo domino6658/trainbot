@@ -189,19 +189,27 @@ def search_rare_services_in_thread():
     asyncio.run_coroutine_threadsafe(log_rare_services(rareservices), bot.loop)
 
 async def log_rare_services(result):
+    if result in ['none' or None]:
+        for server in config['rare_service_searcher']['servers']:
+            channel = bot.get_channel(server[0])
+            role = server[1]
+
+            embed = discord.Embed(title=f'There was an error getting rare services')
+            await channel.send(embed=embed)
+        return
+            
+    if len(result) == 0:
+        for server in config['rare_service_searcher']['servers']:
+            channel = bot.get_channel(server[0])
+            role = server[1]
+
+            embed = discord.Embed(title=f'No rare services found')
+            await channel.send(embed=embed)
+        return
+        
     for server in config['rare_service_searcher']['servers']:
         channel = bot.get_channel(server[0])
         role = server[1]
-
-        if result in ['none' or None]:
-            embed = discord.Embed(title=f'There was an error getting rare services')
-            await channel.send(embed=embed)
-            return
-            
-        if len(result) == 0:
-            embed = discord.Embed(title=f'No rare services found')
-            await channel.send(embed=embed)
-            return
         
         await channel.send(f'<@&{role}>')
         embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')

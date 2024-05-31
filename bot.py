@@ -11,7 +11,6 @@ import datetime
 import time
 import csv
 import random
-import pandas as pd
 from typing import Literal, Optional
 import typing
 import enum

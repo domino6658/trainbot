@@ -9,7 +9,7 @@ def search_api_request(search_term):
     print(f"Search url: {url}")
     
     # Make the GET request
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -32,7 +32,7 @@ def route_api_request(route_id, route_type):
     print(f"Route search url: {url}")
     
     # Make the GET request
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -51,7 +51,7 @@ def routes_list(type):
     print(f"Route search url: {url}")
     
     # Make the GET request
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -69,7 +69,7 @@ def runs_api_request(route_id):
     url = getUrl(f'/v3/runs/route/{route_id}?expand=All')
     print(f"search url: {url}")
     
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful
     if response.status_code == 200:
@@ -84,7 +84,7 @@ def departures_api_request(stop_id, route_type):
     print(f"search url: {url}")
     
     # Make the GET request
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -102,7 +102,7 @@ def route_type_api_request():
     print(f"search url: {url}")
     
     # Make the GET request
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -119,7 +119,7 @@ def disruption_api_request(routeId):
     print(f"search url: {url}")
     
     # Make the GET request
-    response = requests.get(url)
+    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:

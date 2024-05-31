@@ -53,9 +53,6 @@ def addTrain(username, date, train_number, train_type, line, start, end):
 
 
 
-
-
-
 def readLogs(username):
 
     # Create the filename based on the username

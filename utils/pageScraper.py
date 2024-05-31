@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import lxml
 import time
 
 trains_on_lines = {
@@ -255,18 +254,32 @@ def transportVicSearchLine(line):
         tripshtml = soup.find_all(class_='trip')
         tripshtml = [trip for trip in tripshtml if 'inactive' not in str(trip)] # remove trips that have finished
         if tripshtml:
-            trips = [trip.text for trip in tripshtml]
             tripsformatted = []
-            for trip in trips:
-                trip = trip.split(': ')
-                trip.pop(0)
-                temp = trip[0].split(' ',1)
-                temp.append(trip[1])
-                trip = temp.copy()
-                trip.append(checkTrainType(trip[2].split('-')[0]))
+            for trip in tripshtml:
+                triphtml = trip #save html data to another vatiable
+                trip = trip.text #convert to text
+                trip = trip.split(': ') #seperate text
+                trip.pop(0) #remove td number
+                temp = trip[0].split(' ',1) #0
+                temp.append(trip[1]) #1
+                trip = temp.copy() #2
+
+                # add the train type 3
+                trip.append(checkTrainType(trip[2].split('-')[0])) 
+
+                # add the line 4
                 trip.append(line)
+
+                # add website to check if its a real service 5
+                soup = BeautifulSoup(str(triphtml),"html.parser")
+                website = f"https://vic.transportsg.me{soup.find('a',href=True)['href']}"
+                trip.append(website)
+
+                # add formatted trip to all formatted trips
                 tripsformatted.append(trip)
+            
             return tripsformatted
+                
             
         else:
             return 'none'
@@ -275,7 +288,7 @@ def transportVicSearchLine(line):
         return None
 
 def findRareServices(inputline):
-    rareservices = []
+    rareservicesfake = []
     if inputline == 'all':
         for line in linelist:
             tripsforline = transportVicSearchLine(line)
@@ -291,10 +304,9 @@ def findRareServices(inputline):
                         print(trip)
                         print(f'car: {car}')
                         print(f'type: {checkTrainType(car)}')
-                        rareservices.append(trip)
+                        rareservicesfake.append(trip)
     else:
         tripsforline = transportVicSearchLine(inputline)
-
         for trip in tripsforline:
             # print(trip)
             car = trip[2].split('-')[0]
@@ -305,9 +317,24 @@ def findRareServices(inputline):
                 print(trip)
                 print(f'car: {car}')
                 print(f'type: {checkTrainType(car)}')
-                rareservices.append(trip)
+                rareservicesfake.append(trip)
+    print(rareservicesfake)
+    # check if servies are real
+    rareservices = []
+    for service in rareservicesfake:
+
+        # print(service)
+        page = requests.get(service[5])
+        soup = BeautifulSoup(page.content, "html.parser")
+
+        checkset = soup.find_all(class_='liveConsist')
+        if checkset != []:
+            rareservices.append(service)
+        else:
+            print('fake service found! not appended')
+            print(service)
+    
     print(rareservices)
     return rareservices
 
 # transportVicSearchStation('flinders street') 
-print('\n\nyou clicked on the wrong file dumbass\n\n')

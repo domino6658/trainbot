@@ -1,13 +1,9 @@
-key.txt
-token.txt
-test.token
-.env
 leaderboard.csv
 logs.txt
-# userdata/
+userdata/
 utils/game/scores/
 utils/trainlogger/userdatabackup
-photo-submissions/
+config.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

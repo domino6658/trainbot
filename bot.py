@@ -16,6 +16,8 @@ from typing import Literal, Optional
 import typing
 import enum
 from re import A
+import os.path
+import yaml
 
 from utils.search import *
 from utils.colors import *
@@ -30,31 +32,25 @@ from utils.trainlogger.main import *
 from utils.trainset import *
 from utils.trainlogger.stats import *
 from utils.trainlogger.ids import *
+import utils.getConfig
 
 
-file = open('utils/stations.txt','r')
-all_stations_list = []
-metro_stations_list = []
-for line in file:
-    line = line.strip()
-    all_stations_list.append(line)
-    if len(metro_stations_list) != 221:
-        metro_stations_list.append(line)
-file.close()
+
+config = utils.getConfig.getconfig()
+print(config)
+
+
 
 # reading config file
 
-config = dotenv_values(".env")
 
-BOT_TOKEN = config['BOT_TOKEN']
-STARTUP_CHANNEL_ID = int(config['STARTUP_CHANNEL_ID']) # channel id to send the startup message
-RARE_SERVICE_CHANNEL_ID = int(config['RARE_SERVICE_CHANNEL_ID'])
-COMMAND_PREFIX = config['COMMAND_PREFIX']
-USER_ID = config['USER_ID']
-RARE_SERVICE_SEARCHER = config['RARE_SERVICE_SEARCHER']
 
-bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=discord.Intents.all())
-log_channel = bot.get_channel(STARTUP_CHANNEL_ID)
+config['bot']['startup_channel_id'] = int(config['bot']['startup_channel_id']) # channel id to send the startup message
+
+
+# set up bot
+bot = commands.Bot(command_prefix=str(config['bot']['command_prefix']), intents=discord.Intents.all())
+# log_channel = bot.get_channel(config['bot']['startup_channel_id'])
 
 channel_game_status = {} #thing to store what channels are running the guessing game
 
@@ -91,6 +87,16 @@ async def metro_station_autocompletion(
         app_commands.Choice(name=station, value=station)
         for station in stations if current.lower() in station.lower()
     ]
+
+file = open('utils/stations.txt','r')
+all_stations_list = []
+metro_stations_list = []
+for line in file:
+    line = line.strip()
+    all_stations_list.append(line)
+    if len(metro_stations_list) != 221:
+        metro_stations_list.append(line)
+file.close()
 
 lines_dictionary = {
     'Alamein': [['Richmond', 'East Richmond', 'Burnley', 'Hawthorn', 'Glenferrie', 'Auburn', 'Camberwell', 'Riversdale', 'Willison', 'Hartwell', 'Burwood', 'Ashburton', 'Alamein'],0x01518a],
@@ -149,17 +155,18 @@ stats = CommandGroups(name='stats')
 @bot.event
 async def on_ready():
     print("Bot started")
-    channel = bot.get_channel(STARTUP_CHANNEL_ID)
+    channel = bot.get_channel(int(config['bot']['startup_channel_id']))
 
     bot.tree.add_command(trainlogs)
     bot.tree.add_command(games)
     bot.tree.add_command(search)
     bot.tree.add_command(stats)
-
+    app_info = await bot.application_info()
+    config['owner_id'] = app_info.owner.id
     with open('logs.txt', 'a') as file:
         file.write(f"\n{datetime.datetime.now()} - Bot started")
-    await channel.send(f"<@{USER_ID}> Bot is online! {convert_to_unix_time(datetime.datetime.now())}")
-    if RARE_SERVICE_SEARCHER == 'on':
+    await channel.send(f"<@{config['owner_id']}> Bot is online! {convert_to_unix_time(datetime.datetime.now())}")
+    if config['rare_service_searcher']['enabled']:
         task_loop.start()
         print('Rare service searcher is enabled!')
 
@@ -169,8 +176,10 @@ async def on_ready():
 @tasks.loop(minutes=10)
 async def task_loop():
     print('its on')
-    log_channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
-    await log_channel.send(f'Searching for rare services...')
+    for server in config['rare_service_searcher']['servers']:
+        channel = bot.get_channel(server[0])
+        role = server[1]
+        await channel.send(f'Searching for rare services...')
 
     # Create a new thread to run checkRareTrainsOnRoute
     thread = threading.Thread(target=search_rare_services_in_thread)
@@ -181,36 +190,42 @@ def search_rare_services_in_thread():
     asyncio.run_coroutine_threadsafe(log_rare_services(rareservices), bot.loop)
 
 async def log_rare_services(result):
-    channel = bot.get_channel(RARE_SERVICE_CHANNEL_ID)
+    for server in config['rare_service_searcher']['servers']:
+        channel = bot.get_channel(server[0])
+        role = server[1]
 
-    if result in ['none' or None]:
-        embed = discord.Embed(title=f'There was an error getting rare services')
-        await channel.send(embed=embed)
-        return
+        if result in ['none' or None]:
+            embed = discord.Embed(title=f'There was an error getting rare services')
+            await channel.send(embed=embed)
+            return
+            
+        if len(result) == 0:
+            embed = discord.Embed(title=f'No rare services found')
+            await channel.send(embed=embed)
+            return
         
-    if len(result) == 0:
-        embed = discord.Embed(title=f'No rare services found')
+        await channel.send(f'<@&{role}>')
+        embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')
         await channel.send(embed=embed)
-        return
-    
-    await channel.send('<@&1227743193538498622>')
-    embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')
-    await channel.send(embed=embed)
 
-    i = 0
-    for trip in result:
-        i += 1
-        time = trip[0]
-        desto = trip[1]
-        set = trip[2]
-        type = trip[3]
-        line = trip[4]
-        embed = discord.Embed(title=f'{i}. {desto} ({time})', color=lines_dictionary[line][1])
-        embed.add_field(name='Line:',value=line)
-        embed.add_field(name='Type:',value=type)
-        embed.add_field(name='Set:',value=set,inline=False)
-        embed.set_thumbnail(url=getIcon(type))
-        await channel.send(embed=embed)
+        i = 0
+        for trip in result:
+            i += 1
+            time = trip[0]
+            desto = trip[1]
+            set = trip[2]
+            type = trip[3]
+            line = trip[4]
+            embed = discord.Embed(title=f'{i}. {desto} ({time})', color=lines_dictionary[line][1])
+            embed.add_field(name='Line:',value=line)
+            embed.add_field(name='Type:',value=type)
+            embed.add_field(name='Set:',value=set,inline=False)
+            embed.set_thumbnail(url=getIcon(type))
+            await channel.send(embed=embed)
+
+
+
+
 
     
 # /search metro-line BROKEN
@@ -1244,4 +1259,4 @@ async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object], s
         await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
 # run bot
-bot.run(BOT_TOKEN)
+bot.run(config['bot']['token'])

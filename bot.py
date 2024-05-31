@@ -211,7 +211,7 @@ async def log_rare_services(result):
         channel = bot.get_channel(server[0])
         role = server[1]
 
-        await channel.send(f'<@&{role}>')
+        # await channel.send(f'<@&{role}>')
         embed = discord.Embed(title=f'{len(result)} Rare Service{"" if len(result) == 1 else "s"} found!')
         await channel.send(embed=embed)
 

@@ -51,8 +51,8 @@ rare_service_searcher:
   enabled: False
 ''')
         print('\nA config file (config.yml) has been generated. Please fill out the values in the file and run bot.py again.\n')
+        quit()
         exit()
-
     with open('config.yml', 'r') as file:
         config = yaml.safe_load(file)
     config['rare_service_searcher']['servers'] = [i for i in config['rare_service_searcher']['servers'] if i != [None,None]]

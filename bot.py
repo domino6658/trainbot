@@ -1265,5 +1265,31 @@ async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object], s
 
         await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
+@bot.command()
+@commands.guild_only()
+async def toggle(ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: Optional[Literal["on","off"]] = None) -> None:
+    if ctx.author.id == 707866373602148363:
+        if spec == 'on':
+            if config['rare_service_searcher']['enabled']:
+                await ctx.send(f"Rare service searcher is already on.")
+            else:
+                config['rare_service_searcher']['enabled'] = True
+                if not task_loop.is_running():
+                    task_loop.start()
+                else:
+                    task_loop.restart()
+                await ctx.send(f"Rare service searcher turned on.")
+        elif spec == 'off':
+            if config['rare_service_searcher']['enabled']:
+                config['rare_service_searcher']['enabled'] = False
+                task_loop.stop()
+                await ctx.send(f"Rare service searcher turned off.")
+            else:
+                await ctx.send(f"Rare service searcher is already off.")
+        else:
+            await ctx.send(f"Invalid option, either `on` or `off`.")
+    else:
+        await ctx.send('You do not have permission to run this command.')
+
 # run bot
 bot.run(config['bot']['token'])

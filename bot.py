@@ -36,7 +36,7 @@ import utils.getConfig
 
 
 config = utils.getConfig.getconfig()
-print(config)
+# print(config)
 
 
 

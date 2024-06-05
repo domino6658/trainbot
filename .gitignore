@@ -3,6 +3,7 @@ logs.txt
 userdata/
 utils/game/scores/
 utils/trainlogger/userdatabackup
+utils/trainlogger/userdata/
 config.yml
 
 # Byte-compiled / optimized / DLL files

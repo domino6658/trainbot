@@ -11,10 +11,10 @@ def dectohex(decnum):
     return hexnum[2:].upper()
 
 def is_hexadecimal(s):
-   for char in s:
-      if not char.isalnum(): # Check if the character is a valid hexadecimal digit
-         return False
-   return True
+    for char in s:
+        if not char.isalnum(): # Check if the character is a valid hexadecimal digit
+            return False
+    return True
 
 def addTrain(username, date, train_number, train_type, line, start, end):
 
@@ -32,6 +32,9 @@ def addTrain(username, date, train_number, train_type, line, start, end):
     except FileNotFoundError:
         os.mkdir('utils/trainlogger/userdata')
         id = 0
+
+    if not os.path.isfile(filename):
+        open(filename, "x").close()
 
     with open(filename, 'r+', newline='') as file:
         data = file.readlines()

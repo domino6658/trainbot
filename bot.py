@@ -235,7 +235,7 @@ async def log_rare_services(result):
 
 
     
-# /search metro-line BROKEN
+# /search metro-line
     
 @search.command(name="metro-line", description="Show info about a Metro line")
 @app_commands.describe(line = "What Metro line to show info about?")
@@ -307,10 +307,11 @@ async def line_info(interaction: discord.Interaction, line: str):
         # await ctx.response.send_message(f"error:\n`{e}`")
         print(e)
 
-    color = genColor(description)
-    print(f"Status color: {color}")
+    icon = getIcon(description)
+    print(f"icon: {icon}")
     
-    embed = discord.Embed(title=f'**__{description}__**', color=color)
+    embed = discord.Embed(title=f'**__{description}__**',color=lines_dictionary[line][1])
+    embed.set_thumbnail(url=icon)
     embed.set_author(name=f"{route_name} Line")
     # embed.add_field(name=description, value='', inline=False)
     if disruptionDescription:
@@ -323,15 +324,12 @@ async def line_info(interaction: discord.Interaction, line: str):
                 file.write(f"\n{datetime.datetime.now()} - user sent line info command with input {line}")
 
 
-# / search run BROKEN
-
+# / search run
+'''
 @search.command(name="run", description="Show runs for a route")
 @app_commands.describe(runid = "route id")
-async def runs(ctx, runid: str):
-    embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
-    await ctx.response.send_message(embed=embed,ephemeral=True)
-    return
-    
+async def runs(interaction: discord.Interaction,runid: str):
+    await interaction.response.defer()
     api_response = runs_api_request(runid)
     json_response = json.dumps(api_response)
     data = json.loads(json_response)
@@ -356,12 +354,12 @@ async def runs(ctx, runid: str):
     for vehicle_info in vehicle_data:
         embed.add_field(name="Train type:", value=vehicle_info["description"], inline=False)    
     
-    await ctx.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
     with open('logs.txt', 'a') as file:
                 file.write(f"\n{datetime.datetime.now()} - user sent run search command with input {runid}")
+'''
 
-
-# /search route BROKEN
+# /search route
 
 @search.command(name="route", description="Show info about a tram or bus route")
 @app_commands.describe(rtype = "What type of transport is this route?")
@@ -374,19 +372,13 @@ async def runs(ctx, runid: str):
 ])
 @app_commands.describe(number = "What route number to show info about?")
 
-async def route(ctx, rtype: str, number: int):    
-    embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
-    await ctx.response.send_message(embed=embed,ephemeral=True)
-    return
-    
+async def route(interaction: discord.Interaction, type: str, number: int):    
+    await interaction.response.defer()
     try:
-        json_info_str = route_api_request(number, rtype)
+        json_info_str = route_api_request(number, type)
         json_info_str = json_info_str.replace("'", "\"")  # Replace single quotes with double quotes
         json_info = json.loads(json_info_str)
-        
-        channel = ctx.channel
-        await ctx.response.send_message(f"Results for {number}:")
-        # embed = discord.Embed(title=f"Bus routes matching `{line}`:", color=0xff8200)
+
         counter = 0
         for route in json_info['routes']:
 
@@ -435,14 +427,14 @@ async def route(ctx, rtype: str, number: int):
                 if disruptionDescription:
                     embed.add_field(name="Disruption Info",value=disruptionDescription, inline=False)
                     
-                await channel.send(embed=embed)
+                await interaction.followup.send(embed=embed)
                 with open('logs.txt', 'a') as file:
                     file.write(f"\n{datetime.datetime.now()} - user sent route search command with input {rtype}, {number}")
                                 
             counter = counter + 1
                 
     except Exception as e:
-        await ctx.response.send_message(f"error:\n`{e}`\nMake sure you inputted a valid route number, otherwise, the bot is broken.")
+        await interaction.followup.send(embed=embed)
         with open('logs.txt', 'a') as file:
                     file.write(f"\n{datetime.datetime.now()} - ERROR with user command - user sent route search command with input {rtype}, {number}")
 

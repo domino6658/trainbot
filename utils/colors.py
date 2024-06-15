@@ -1,15 +1,15 @@
-def genColor(status):
+def getIcon(status):
     print(f"Line Status: {status}")
     if status == "Major Delays":
-        return(0xef4135)
+        return('https://files.catbox.moe/jqiu3q.png')
     if status == "Good Service":
-        return(0x90af53)
+        return('https://files.catbox.moe/iz0udh.png')
     if status == "Minor Delays":
-        return(0xe87801)
+        return('https://files.catbox.moe/1c9ivj.png')
     if status == "Suspended":
-        return(0x3d3d3d)
+        return('https://files.catbox.moe/zxaz44.png')
     if status == "Planned Works":
-        return(0xffd500)
+        return('https://files.catbox.moe/mvjwvc.png')
 
 def getColor(type):
     if type == "metro" or type == "0":

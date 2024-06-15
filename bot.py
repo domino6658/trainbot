@@ -362,8 +362,8 @@ async def runs(interaction: discord.Interaction,runid: str):
 # /search route
 
 @search.command(name="route", description="Show info about a tram or bus route")
-@app_commands.describe(rtype = "What type of transport is this route?")
-@app_commands.choices(rtype=[
+@app_commands.describe(type = "What type of transport is this route?")
+@app_commands.choices(type=[
         app_commands.Choice(name="Tram", value="1"),
         # app_commands.Choice(name="Metro Train", value="0"),
         app_commands.Choice(name="Bus", value="2"),

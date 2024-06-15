@@ -1241,36 +1241,19 @@ async def profile(ctx, user: discord.User = None):
 
 @bot.command()
 @commands.guild_only()
-async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
+async def sync(ctx: commands.Context, guilds: commands.Greedy[discord.Object]) -> None:
     if ctx.author.id in [707866373602148363,780303451980038165]:
         if not guilds:
-            if spec == "~":
-                synced = await ctx.bot.tree.sync(guild=ctx.guild)
-            elif spec == "*":
-                ctx.bot.tree.copy_global_to(guild=ctx.guild)
-                synced = await ctx.bot.tree.sync(guild=ctx.guild)
-            elif spec == "^":
-                ctx.bot.tree.clear_commands(guild=ctx.guild)
-                await ctx.bot.tree.sync(guild=ctx.guild)
-                synced = []
-            else:
-                synced = await ctx.bot.tree.sync()
-
-            await ctx.send(
-                f"Synced {len(synced)} commands {'globally' if spec is None else 'to the current guild.'}"
-            )
+            syncmsg = await ctx.send(f"Syncing commands...\n(`------------` 0%)")
+            synced = await ctx.bot.tree.sync()
+            await syncmsg.edit(content=f"Syncing commands...\n(`####--------` 33%)")
+            ctx.bot.tree.copy_global_to(guild=ctx.guild)
+            synced = await ctx.bot.tree.sync(guild=ctx.guild)
+            await syncmsg.edit(content=f"Syncing commands...\n(`########----` 66%)")
+            ctx.bot.tree.clear_commands(guild=ctx.guild)
+            await ctx.bot.tree.sync(guild=ctx.guild)
+            await syncmsg.edit(content=f"Successfully synced {len(synced)} command{'s' if len(synced) > 1 else ''}\n(`############` 100%)")
             return
-
-        ret = 0
-        for guild in guilds:
-            try:
-                await ctx.bot.tree.sync(guild=guild)
-            except discord.HTTPException:
-                pass
-            else:
-                ret += 1
-
-        await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
 @bot.command()
 @commands.guild_only()

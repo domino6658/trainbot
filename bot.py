@@ -421,7 +421,7 @@ async def route(interaction: discord.Interaction, type: str, number: int):
              # Check if the route number is the one you want
             if route_number == str(number):
                 # Create and send the embed only for the desired route number
-                embed = discord.Embed(title=f"Route {route_number}:", color=getColor(rtype))
+                embed = discord.Embed(title=f"Route {route_number}:", color=getColor(type))
                 embed.add_field(name="Route Name", value=f"{route_number} - {route_name}", inline=False)
                 embed.add_field(name="Status Description", value=description, inline=False)
                 if disruptionDescription:
@@ -429,14 +429,14 @@ async def route(interaction: discord.Interaction, type: str, number: int):
                     
                 await interaction.followup.send(embed=embed)
                 with open('logs.txt', 'a') as file:
-                    file.write(f"\n{datetime.datetime.now()} - user sent route search command with input {rtype}, {number}")
+                    file.write(f"\n{datetime.datetime.now()} - user sent route search command with input {type}, {number}")
                                 
             counter = counter + 1
                 
     except Exception as e:
         await interaction.followup.send(embed=embed)
         with open('logs.txt', 'a') as file:
-                    file.write(f"\n{datetime.datetime.now()} - ERROR with user command - user sent route search command with input {rtype}, {number}")
+                    file.write(f"\n{datetime.datetime.now()} - ERROR with user command - user sent route search command with input {type}, {number}")
 
 
 # /search wongm

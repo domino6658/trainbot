@@ -1,4 +1,4 @@
-def getIcon(status):
+def getServiceIcon(status):
     print(f"Line Status: {status}")
     if status == "Major Delays":
         return('https://files.catbox.moe/jqiu3q.png')

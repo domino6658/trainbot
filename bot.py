@@ -235,9 +235,9 @@ async def log_rare_services(result):
 
 
     
-# /search metro-line
+# /search line
     
-@search.command(name="metro-line", description="Show info about a Metro line")
+@search.command(name="line", description="Show info about a Metro line")
 @app_commands.describe(line = "What Metro line to show info about?")
 @app_commands.choices(line=[
         app_commands.Choice(name="Alamein", value="Alamein"),
@@ -307,7 +307,7 @@ async def line_info(interaction: discord.Interaction, line: str):
         # await ctx.response.send_message(f"error:\n`{e}`")
         print(e)
 
-    icon = getIcon(description)
+    icon = getServiceIcon(description)
     print(f"icon: {icon}")
     
     embed = discord.Embed(title=f'**__{description}__**',color=lines_dictionary[line][1])

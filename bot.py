@@ -257,10 +257,12 @@ async def log_rare_services(result):
         app_commands.Choice(name="Werribee", value="Werribee"),
 ])
 
-async def line_info(ctx, line: str):
+async def line_info(interaction: discord.Interaction, line: str):
     # embed = discord.Embed(title='This command isn\'t working right now!', description='domino6658 is working on fixing it')
     # await ctx.response.send_message(embed=embed,ephemeral=True)
     # return
+
+    await interaction.response.defer()
 
     json_info_str = route_api_request(line, "0")
     print(json_info_str)
@@ -316,7 +318,7 @@ async def line_info(ctx, line: str):
         
 
     
-    await ctx.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
     with open('logs.txt', 'a') as file:
                 file.write(f"\n{datetime.datetime.now()} - user sent line info command with input {line}")
 

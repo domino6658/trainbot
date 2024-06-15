@@ -12,11 +12,7 @@ def getServiceIcon(status):
         return('https://files.catbox.moe/mvjwvc.png')
 
 def getColor(type):
-    if type == "metro" or type == "0":
-        return(0x0072ce)
-    if type == "tram" or type == "1":
+    if type == "Tram":
         return(0x78be20)
-    if type == "bus" or type =="2":
+    if type in ["Bus" or "Night Bus"]:
         return(0xff8400)
-    if type == "vline" or type =="3":
-        return(0x8f1a95)

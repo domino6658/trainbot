@@ -364,79 +364,91 @@ async def runs(interaction: discord.Interaction,runid: str):
 @search.command(name="route", description="Show info about a tram or bus route")
 @app_commands.describe(type = "What type of transport is this route?")
 @app_commands.choices(type=[
-        app_commands.Choice(name="Tram", value="1"),
+        app_commands.Choice(name="Tram",value="Tram"),
         # app_commands.Choice(name="Metro Train", value="0"),
-        app_commands.Choice(name="Bus", value="2"),
+        app_commands.Choice(name="Bus",value="Bus"),
         # app_commands.Choice(name="VLine Train", value="3"),
-        app_commands.Choice(name="Night Bus", value="4"),
+        app_commands.Choice(name="Night Bus",value="Night Bus"),
 ])
 @app_commands.describe(number = "What route number to show info about?")
 
 async def route(interaction: discord.Interaction, type: str, number: int):    
     await interaction.response.defer()
+    # try:
+    json_info_str = route_api_request(number, type)
+
     try:
-        json_info_str = route_api_request(number, type)
         json_info_str = json_info_str.replace("'", "\"")  # Replace single quotes with double quotes
-        json_info = json.loads(json_info_str)
-
-        counter = 0
-        for route in json_info['routes']:
-
-            routes = json_info['routes']
-            status = json_info['status']
-            version = status['version']
-            health = status['health']
-        
-        
-            route = routes[counter]
-            route_service_status = route['route_service_status']
-            description = route_service_status['description']
-            timestamp = route_service_status['timestamp']
-            route_type = route['route_type']
-            route_id = route['route_id']
-            route_name = route['route_name']
-            route_number = route['route_number']
-            route_gtfs_id = route['route_gtfs_id']
-            geopath = route['geopath']
-            
-             # disruption info
-            disruptionDescription = ""
-            try:
-                disruptions = disruption_api_request(route_id)
-                # print(disruptions)
-                
-                # Extracting title and description
-                general_disruption = disruptions["disruptions"]["metro_bus"][0]
-                disruptionTitle = general_disruption["title"]
-                disruptionDescription = general_disruption["description"]
-
-
-                
-            except Exception as e:
-                print(e)
-
-            
-            # disruption status:
-
-             # Check if the route number is the one you want
-            if route_number == str(number):
-                # Create and send the embed only for the desired route number
-                embed = discord.Embed(title=f"Route {route_number}:", color=getColor(type))
-                embed.add_field(name="Route Name", value=f"{route_number} - {route_name}", inline=False)
-                embed.add_field(name="Status Description", value=description, inline=False)
-                if disruptionDescription:
-                    embed.add_field(name="Disruption Info",value=disruptionDescription, inline=False)
-                    
-                await interaction.followup.send(embed=embed)
-                with open('logs.txt', 'a') as file:
-                    file.write(f"\n{datetime.datetime.now()} - user sent route search command with input {type}, {number}")
-                                
-            counter = counter + 1
-                
-    except Exception as e:
+    except AttributeError:
+        embed = discord.Embed(title=f"Error getting info for {type} Route {number}",description='Try again in a few seconds.')
         await interaction.followup.send(embed=embed)
-        with open('logs.txt', 'a') as file:
-                    file.write(f"\n{datetime.datetime.now()} - ERROR with user command - user sent route search command with input {type}, {number}")
+        return
+    json_info = json.loads(json_info_str)
+
+    counter = 0
+    if not json_info['routes']:
+        embed = discord.Embed(title=f"No info found for {type} Route {number}")
+        await interaction.followup.send(embed=embed)
+        return
+    for route in json_info['routes']:
+
+        routes = json_info['routes']
+        status = json_info['status']
+        version = status['version']
+        health = status['health']
+    
+    
+        route = routes[counter]
+        route_service_status = route['route_service_status']
+        description = route_service_status['description']
+        timestamp = route_service_status['timestamp']
+        route_type = route['route_type']
+        route_id = route['route_id']
+        route_name = route['route_name']
+        route_number = route['route_number']
+        route_gtfs_id = route['route_gtfs_id']
+        geopath = route['geopath']
+        
+
+        # disruption info
+        disruptionDescription = ""
+        disruptions = disruption_api_request(route_id)
+
+        # Extracting title and description
+        if disruptions["disruptions"]["metro_bus"]:
+            general_disruption = disruptions["disruptions"]["metro_bus"][0]
+            disruptionTitle = general_disruption["title"]
+            disruptionDescription = general_disruption["description"]
+
+        
+        # disruption status:
+
+            # Check if the route number is the one you want
+        if route_number == str(number):
+
+            icon = getServiceIcon(description)
+            print(f"icon: {icon}")
+
+            # Create and send the embed only for the desired route number
+            embed = discord.Embed(title=f"__**{description}**__", color=getColor(type))
+            embed.set_thumbnail(url=icon)
+            embed.set_author(name=f"{type} Route {route_number}")
+            embed.add_field(name="", value=f"{route_number} - {route_name}", inline=False)
+            # embed.add_field(name="Status Description", value=description, inline=False)
+            if disruptionDescription:
+                embed.add_field(name="Disruption Info",value=disruptionDescription, inline=False)
+                
+            await interaction.followup.send(embed=embed)
+            with open('logs.txt', 'a') as file:
+                file.write(f"\n{datetime.datetime.now()} - user sent route search command with input {type}, {number}")
+                            
+        counter = counter + 1
+                
+    # except Exception as e:
+    #     embed = discord.Embed(title=f"No info found for Route {number}")
+    #     await interaction.followup.send(embed=embed)
+    #     with open('logs.txt', 'a') as file:
+    #                 file.write(f"\n{datetime.datetime.now()} - ERROR with user command - user sent route search command with input {type}, {number}")
 
 
 # /search wongm

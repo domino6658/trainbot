@@ -26,7 +26,13 @@ def search_api_request(search_term):
 # search_api_request(search_term)
 
 def route_api_request(route_id, route_type):
-    
+    route_type_dict = {
+        "Tram":1,
+        "Bus":2,
+        "Night Bus":4,
+        "0":0
+    }
+    route_type = route_type_dict[route_type]
     # API endpoint URL
     url = getUrl(f'/v3/routes/?route_name={route_id}&route_types={route_type}')
     print(f"Route search url: {url}")
@@ -125,6 +131,7 @@ def disruption_api_request(routeId):
     if response.status_code == 200:
         # Parse and work with the response data (assuming it's JSON)
         data = response.json()
+        print(data)
         return(data)
     else:
         # Print an error message if the request was not successful

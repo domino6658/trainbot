@@ -32,7 +32,7 @@ def route_api_request(route_id, route_type):
     print(f"Route search url: {url}")
     
     # Make the GET request
-    response = requests.get(url,proxies={'https': '35.185.196.38:3128'})
+    response = requests.get(url)
     
     # Check if the request was successful (status code 200)
     if response.status_code == 200:

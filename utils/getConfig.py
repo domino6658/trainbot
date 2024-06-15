@@ -56,4 +56,5 @@ rare_service_searcher:
     with open('config.yml', 'r') as file:
         config = yaml.safe_load(file)
     config['rare_service_searcher']['servers'] = [i for i in config['rare_service_searcher']['servers'] if i != [None,None]]
+    config['ptv_api']['dev_id'] = str(config['ptv_api']['dev_id'])
     return config

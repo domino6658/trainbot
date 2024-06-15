@@ -263,6 +263,7 @@ async def line_info(ctx, line: str):
     # return
 
     json_info_str = route_api_request(line, "0")
+    print(json_info_str)
     json_info_str = json_info_str.replace("'", "\"")  # Replace single quotes with double quotes
     json_info = json.loads(json_info_str)
     

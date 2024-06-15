@@ -5,18 +5,16 @@ import os
 import yaml
 import utils.getConfig as getConfig
 
+
 def getUrl(request):
     config = getConfig.getconfig()
 
-    
     devId = int(config['ptv_api']['dev_id'])
-    key = bytes(config['ptv_api']['dev_id'], "utf-8")
+    key = str(config['ptv_api']['dev_id'])
+    
     request = request + ('&' if ('?' in request) else '?')
-    raw = request + 'devid={0}'.format(devId)
-    
-    # Encode the raw string
-    raw_encoded = raw.encode('utf-8')
-    
-    hashed = hmac.new(key, raw_encoded, sha1)
+    raw = request+'devid={0}'.format(devId)
+    hashed = hmac.new(key, raw, sha1)
     signature = hashed.hexdigest()
+
     return 'http://timetableapi.ptv.vic.gov.au' + raw + '&signature={1}'.format(devId, signature)

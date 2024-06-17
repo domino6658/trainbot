@@ -532,7 +532,7 @@ async def transportVicSearch_async(ctx: commands.Context, train):
 
         await ctx.channel.send(embed=embed)
 
-@search.command(name="rare-services", description="Search for rare services on all lines")
+@search.command(name="train-rare-services", description="Search for rare services on all train lines")
 @app_commands.describe(line = "Line")
 @app_commands.choices(line=[
         app_commands.Choice(name="Alamein", value="Alamein"),
@@ -596,6 +596,57 @@ async def search_rare_services_inthread(ctx,inputline):
         await ctx.channel.send(embed=embed)
 
 
+
+
+@search.command(name="tram-rare-services", description="Search for rare services on all tram routes")
+
+async def search_rare_services(ctx):
+    channel = ctx.channel
+    await ctx.response.send_message(f'Searching for rare tram services...')
+    # embed = discord.Embed(title=f'a')
+    # embed.set_thumbnail(url='https://files.catbox.moe/zkc4fz.png')
+    # await ctx.channel.send(embed=embed)
+
+    loop = bot.loop
+    task = loop.create_task(search_tram_rare_services_inthread(ctx))
+    await task
+
+async def search_tram_rare_services_inthread(ctx):
+    result = findRareTramServices()
+    
+    
+    # await ctx.channel.send(result)
+    # return
+
+    if result in ['none' or None]:
+        embed = discord.Embed(title=f'There was an error getting rare services')
+        await ctx.channel.send(embed=embed)
+        return
+        
+    if len(result) == 0:
+        embed = discord.Embed(title=f'No rare services found')
+        await ctx.channel.send(embed=embed)
+        return
+    
+
+    embed = discord.Embed(title=f'{len(result)} Rare Tram Service{"" if len(result) == 1 else "s"} found!')
+    await ctx.channel.send(embed=embed)
+
+    i = 0
+    for trip in result:
+        # [time,start-end,type,number,route,website]
+        i += 1
+        time = trip[0]
+        desto = trip[1]
+        type = trip[2]
+        number = trip[3]
+        route = trip[4]
+        embed = discord.Embed(title=f'{i}. {desto} ({time})')
+        embed.add_field(name='Route:',value=route)
+        embed.add_field(name='Type:',value=type,inline=False)
+        embed.add_field(name='Number:',value=number,inline=True)
+        embed.set_thumbnail(url=getIcon(type))
+        await ctx.channel.send(embed=embed)
 
 
 

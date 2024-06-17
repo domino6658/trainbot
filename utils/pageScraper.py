@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import asyncio
 import time
 
 trains_on_lines = {
@@ -19,6 +20,33 @@ trains_on_lines = {
     "Werribee":["Alstom Comeng","EDI Comeng","Siemens Nexas","X'Trapolis 100"],
     "Williamstown":["Alstom Comeng","EDI Comeng","Siemens Nexas","X'Trapolis 100"]
 }
+
+trams_on_routes = {
+    "1":["b","z"],
+    "3":["b","z"],
+    "5":["d1","z"],
+    "6":["d2","d1","b"],
+    "11":["e"],
+    "12":["a"],
+    "16":["d1","z"],
+    "19":["d2","b"],
+    "30":["e"],
+    "35":["w"],
+    "48":["c","a"],
+    "57":["z"],
+    "58":["e","b","z"],
+    "59":["b"],
+    "64":["b","z"],
+    "67":["b","z"],
+    "70":["b","a"],
+    "75":["b"],
+    "78":["a"],
+    "82":["z"],
+    "86":["e"],
+    "96":["e","c2"],
+    "109":["c","a"]
+}
+
 linelist = [
     'Alamein', #1
     'Belgrave', #2
@@ -35,6 +63,32 @@ linelist = [
     'Upfield', #15
     'Werribee', #16
     'Williamstown' #17
+]
+
+routelist = [
+    '1',
+    '3',
+    '5',
+    '6',
+    '11',
+    '12',
+    '16',
+    '19',
+    '30',
+    '35',
+    '48',
+    '57',
+    '58',
+    '59',
+    '64',
+    '67',
+    '70',
+    '75',
+    '78',
+    '82',
+    '86',
+    '96',
+    '109',
 ]
 
 def checkTrainType(number):
@@ -337,4 +391,122 @@ def findRareServices(inputline):
     print(rareservices)
     return rareservices
 
+
+
+
+
+
+
+
+
+def transportVicSearchRoute(route):
+
+    url = f'https://transportvic.me/tram/tracker/service?service={route}'
+
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+    # print(page.text)
+
+    # print(page.content)
+
+    rareservices = []
+
+    try:
+        tripshtml = soup.find_all(class_='trip')
+        tripshtml = [trip for trip in tripshtml if 'inactive' not in str(trip)] # remove trips that have finished
+ 
+        # print(tripshtml)
+        if tripshtml:
+            tripsformatted = []
+            for trip in tripshtml:
+                triphtml = trip #save html data to another variable
+                trip = trip.text #convert to text
+                trip = trip.split(': ') #seperate text
+                # trip.pop(0) #remove td number
+                temp = trip[1].split(' ',1) #0
+                temp.append(trip[0]) #1
+                trip = temp.copy() #2
+                trip = [trip[0],trip[1].split(" (")[0],*trip[2].split('.')]
+
+                # add the train type 3
+                # trip.append(checkTrainType(trip[2].split('-')[0])) 
+
+                # add the route 4
+                trip.append(route)
+
+                # add website to check if its a real service 5
+                soup = BeautifulSoup(str(triphtml),"html.parser")
+                website = f"https://vic.transportsg.me{soup.find('a',href=True)['href']}"
+                trip.append(website)
+                # print(f'trip found for {route}')
+
+                # add formatted trip to all formatted trips
+                tripsformatted.append(trip)
+                # [time,start-end,type,number,route,website]
+            # print(tripsformatted)
+            print(f'found {len(tripsformatted)} trips on route {route}')
+            return tripsformatted
+                
+            
+        else:
+            return 'none'
+    except Exception as e:
+        print(f'Error: {e}')
+        return None
+
+def findRareTramServices():
+    rareservicesfake = []
+    for route in routelist:
+        tripsforroute = transportVicSearchRoute(route)
+        # [time,start-end,type,number,route,website]
+
+        if tripsforroute not in ['none',None]:
+            for trip in tripsforroute:
+                # print(trip)
+                if "W" in trip[2]:
+                    trip[2] = "W"
+                elif "Z" in trip[2]:
+                    trip[2] = "Z"
+                elif "A" in trip[2]:
+                    trip[2] = "A"
+                elif "B" in trip[2]:
+                    trip[2] = "B"
+                elif "E" in trip[2]:
+                    trip[2] = "E"
+
+                type = trip[2]
+                
+                # print(f'trains on route: {trains_on_routes[route]}')
+                if type.lower() not in trams_on_routes[route]:
+                    print('alert!')
+                    print(trip)
+                    print(f'number: {trip[3]}')
+                    print(f'type: {type}')
+                    rareservicesfake.append(trip)
+        
+        time.sleep(4)
+    print(rareservicesfake)
+    rareservices = rareservicesfake.copy()
+    return rareservices
+
+    # check if servies are real
+    rareservices = []
+    for service in rareservicesfake:
+
+        # print(service)
+        page = requests.get(service[5])
+        soup = BeautifulSoup(page.content, "html.parser")
+
+        checkset = soup.find_all(class_='liveConsist')
+        if checkset != []:
+            rareservices.append(service)
+        else:
+            print('fake service found! not appended')
+            print(service)
+    
+    print(rareservices)
+    return rareservices
+
+
 # transportVicSearchStation('flinders street') 
+# findRareTramServices()

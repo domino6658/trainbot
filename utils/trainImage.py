@@ -22,3 +22,5 @@ def getIcon(type):
         return 'https://melbournesptgallery.weebly.com/uploads/1/9/9/4/19942089/x-trapolis-ptv_2_orig.png'
     if type == 'HCMT':
         return 'https://melbournesptgallery.weebly.com/uploads/1/9/9/4/19942089/hcmt-2_orig.png'
+    if type == "Z":
+        return 'https://files.catbox.moe/zkc4fz.png'

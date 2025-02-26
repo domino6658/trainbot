@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw
 
 import utils
 import utils.trainInfo
-import utils.findDistance
+import utils.math
 import utils.parseTimestamp
 import utils.ptvApi
 import utils.writeToFile
@@ -281,7 +281,7 @@ class Train(object):
                             print(f'Now at: {self.stationName}')
                         else:
                             print(f'Next station: {self.stationName}')
-                            print(f'Distance to next station: {utils.findDistance.haversine(self.runLatitude, self.runLongitude, self.stationLatitude, self.stationLongitude):.2f}km')
+                            print(f'Distance to next station: {utils.math.haversine(self.runLatitude, self.runLongitude, self.stationLatitude, self.stationLongitude):.2f}km')
                             minutes, seconds = divmod(self.runDelta.seconds, 60)
                             print(f'Time to next station: {minutes}m {seconds:02d}s')
                             
@@ -329,7 +329,7 @@ class Train(object):
                                             value="",
                                             inline=False)
                             embed.add_field(name="Distance to next station:",
-                                            value=f"{utils.findDistance.haversine(self.runLatitude, self.runLongitude, self.stationLatitude, self.stationLongitude):.2f}km",
+                                            value=f"{utils.math.haversine(self.runLatitude, self.runLongitude, self.stationLatitude, self.stationLongitude):.2f}km",
                                             inline=True)
                             embed.add_field(name="Time to next station:",
                                             value=f"{minutes}m {seconds:02d}s",

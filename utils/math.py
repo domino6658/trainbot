@@ -1,5 +1,24 @@
 import math
 
+
+def find_closest_coordinates(target_coordinates, n=5):
+    target_lat, target_lon = target_coordinates
+
+    with open('newcoords.csv', 'r') as f:
+        distances = []
+        for line in f:
+            data = line.strip().replace('\n','').split(',')
+            category, name, description, lat, lon = data
+
+            distance = haversine(target_lon, target_lat, lon, lat)
+            distances.append((data, distance))
+
+    distances.sort(key=lambda x: x[1])  # Sort by distance
+    closest_coordinates = distances[:n]
+
+    return closest_coordinates
+
+
 def haversine(lat1, lon1, lat2, lon2):
     # Radius of the Earth in km
     R = 6371.0

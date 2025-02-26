@@ -9,7 +9,6 @@ class Config(object):
     def load_config(self):
         with open('config/config.json') as f:
             self.config = json.load(f)
-            print(json.dumps(self.config, indent=4))
         if os.name == 'posix':
             level = self.config['bot']['main']
         else:

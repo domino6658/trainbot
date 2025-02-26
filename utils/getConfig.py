@@ -1,60 +1,44 @@
 import os
-import yaml
+import json
 
-var = 'hello'
-def getconfig():
-    if not os.path.isfile('config.yml'):
-        with open('config.yml','x+') as file:
-            file.write('''---
+class Config(object):
+    def __init__(self):
+        
+        self.load_config()
 
-# BOT CONFIG
-bot:
-  # Discord bot token
-  token: 
+    def load_config(self):
+        with open('config/config.json') as f:
+            self.config = json.load(f)
+            print(json.dumps(self.config, indent=4))
+        if os.name == 'posix':
+            level = self.config['bot']['main']
+        else:
+            level = self.config['bot']['development']
+        del self.config['bot']['development']
+        del self.config['bot']['main']
+        for key, value in level.items():
+            self.config['bot'][key] = value
+        
+        def dict_to_class(obj, data):
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    sub_obj = type(key, (object,), {})
+                    setattr(obj, key, dict_to_class(sub_obj, value))
+                else:
+                    setattr(obj, key, value)
+            return obj
 
-  # The command prefix for the bot
-  command_prefix: 
+        dict_to_class(self, self.config)
+        
+        del self.config
+        
+            
 
-  # The channel to send startup messages in
-  startup_channel_id: 
+# class Dict2Class(object): 
+      
+#     def __init__(self, my_dict): 
+          
+#         for key in my_dict: 
+#             setattr(self, key, my_dict[key]) 
 
-
-# PTV API
-ptv_api:
-  # Dev ID
-  dev_id: 
-
-  # Key
-  key: 
-
-
-# RARE SERVICE SEARCHER
-rare_service_searcher:
-  # Enter the channel ID and role ID for each server
-  servers:
-    - 
-      # Channel ID
-      - 
-      # Role ID
-      - 
-
-    # Add more servers here if you want
-    - 
-      - 
-      - 
-
-    - 
-      - 
-      - 
-
-  # Enable rare service searcher? (True or False)
-  enabled: False
-''')
-        print('\nA config file (config.yml) has been generated. Please fill out the values in the file and run bot.py again.\n')
-        quit()
-        exit()
-    with open('config.yml', 'r') as file:
-        config = yaml.safe_load(file)
-    config['rare_service_searcher']['servers'] = [i for i in config['rare_service_searcher']['servers'] if i != [None,None]]
-    config['ptv_api']['dev_id'] = str(config['ptv_api']['dev_id'])
-    return config
+config = Config()

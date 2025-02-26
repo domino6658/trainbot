@@ -1,4 +1,4 @@
-def checkTrainType(number):
+def trainType(number):
     car = str(number).upper()
     try:
         if car.endswith("M"):
@@ -19,6 +19,8 @@ def checkTrainType(number):
                 return "X'Trapolis 100"
             elif car >= 701 and car <= 844:
                 return "Siemens Nexas"
+            elif car >= 9001 and int(car) <= 9070 or int(car) >= 9101 and int(car) <= 9170 or int(car) >= 9201 and int(car) <= 9270 or int(car) >= 9301 and int(car) <= 9370 or int(car) >= 9701 and int(car) <= 9770 or int(car) >= 9801 and int(car) <= 9870 or int(car) >= 9901 and int(car) <= 9970:
+                return "HCMT"
             else:
                 return None
         elif car.endswith("T"):
@@ -88,4 +90,37 @@ def checkTrainType(number):
     except Exception as e:
         print(f"Error: {e}")
     return None
-        
+
+
+trains_on_lines = {
+    "Alamein":["X'Trapolis 100"],
+    "Belgrave":["X'Trapolis 100"],
+    "Craigieburn":["Alstom Comeng","EDI Comeng","Siemens Nexas"],
+    "Cranbourne":["HCMT"],
+    "Frankston":["Alstom Comeng","EDI Comeng","Siemens Nexas","X'Trapolis 100"],
+    "Glen Waverley":["X'Trapolis 100"],
+    "Hurstbridge":["X'Trapolis 100"],
+    "Lilydale":["X'Trapolis 100"],
+    "Mernda":["X'Trapolis 100"],
+    "Pakenham":["HCMT"],
+    "Sandringham":["Alstom Comeng","EDI Comeng","Siemens Nexas"],
+    "Sunbury":["Alstom Comeng","EDI Comeng","Siemens Nexas","HCMT"],
+    "Upfield":["Alstom Comeng","EDI Comeng","Siemens Nexas"],
+    "Werribee":["Alstom Comeng","EDI Comeng","Siemens Nexas","X'Trapolis 100"],
+    "Williamstown":["Alstom Comeng","EDI Comeng","Siemens Nexas","X'Trapolis 100"]
+}
+
+def trainLines(type):
+    lines = []
+    for line, trains in trains_on_lines.items():
+        if type in trains:
+            lines.append(line)
+    return lines
+
+pathsdict = {
+    "X'Trapolis 100": 'icons/xtrapolis.png',
+    "Alstom Comeng": 'icons/alstomcomeng.png',
+    "EDI Comeng": 'icons/edicomeng.png',
+    "Siemens Nexas": 'icons/siemens.png',
+    "HCMT": 'icons/hcmt.png',
+}

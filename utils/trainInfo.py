@@ -118,9 +118,9 @@ def trainLines(type):
     return lines
 
 pathsdict = {
-    "X'Trapolis 100": 'icons/xtrapolis.png',
-    "Alstom Comeng": 'icons/alstomcomeng.png',
-    "EDI Comeng": 'icons/edicomeng.png',
-    "Siemens Nexas": 'icons/siemens.png',
-    "HCMT": 'icons/hcmt.png',
+    "X'Trapolis 100": 'misc/icons/xtrapolis.png',
+    "Alstom Comeng": 'misc/icons/alstomcomeng.png',
+    "EDI Comeng": 'misc/icons/edicomeng.png',
+    "Siemens Nexas": 'misc/icons/siemens.png',
+    "HCMT": 'misc/icons/hcmt.png',
 }

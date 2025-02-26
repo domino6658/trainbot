@@ -168,3 +168,4 @@ cython_debug/
 #.idea/
 utils/game/leaderboard.csv
 config/config.json
+ignore/

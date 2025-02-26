@@ -12,6 +12,7 @@ import requests
 import asyncio
 import aiohttp
 import traceback
+from PIL import Image, ImageDraw
 
 import utils
 import utils.trainInfo
@@ -53,6 +54,9 @@ class Train(object):
         self.stationLongitude = None
         self.runLatitude = None
         self.runLongitude = None
+        
+        self.map = None
+        self.image = None
         
         
         
@@ -241,9 +245,9 @@ class Train(object):
                         self.image = f'https://maps.googleapis.com/maps/api/staticmap?center={self.runLatitude},{self.runLongitude}&map_id=3b4527fbc6823f42&zoom=15&size=1000x1000&key=AIzaSyC25xqZry4v9NvopvFfkKnEKBY3r4wvpt8'
                         response = requests.get(self.image)
 
-                        with open('map.png', 'wb') as f:
-                            f.write(response.content)
-                        from PIL import Image, ImageDraw
+                        # with open('map.png', 'wb') as f:
+                        #     f.write(response.content)
+                        
 
 
                         image = Image.open('map.png')

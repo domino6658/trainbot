@@ -1,0 +1,7 @@
+requests
+beautifulsoup4
+selenium
+discord.py
+numpy
+seaborn
+yaml

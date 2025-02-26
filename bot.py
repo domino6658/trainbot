@@ -44,7 +44,7 @@ async def ptvapi(ctx: commands.Context, *, input_string: str):
     data = utils.ptvApi.get(input_string)
     jsontext = json.dumps(data, indent=4, sort_keys=True)
     print(jsontext)
-    utils.writeToFile.write('a.json', jsontext)
+    # utils.writeToFile.write('a.json', jsontext)
     await ctx.send('done')
 
 @bot.command('deps')
@@ -72,7 +72,7 @@ async def _searchdepartures(ctx: commands.Context, *, input_string: str):
                     if d['run_ref'] == departure:
                         print(d["scheduled_departure_utc"], d['run_ref'])
             
-        utils.writeToFile.write('a.json', json.dumps(departures, indent=4, sort_keys=True))
+        # utils.writeToFile.write('a.json', json.dumps(departures, indent=4, sort_keys=True))
         # ['runs']
         # realdeps = []
         # for departure in list(departures.keys()):

@@ -196,7 +196,7 @@ class Train(object):
                         self.runStartLocal = self.runStartUtc + datetime.datetime.now(datetime.timezone.utc).astimezone().utcoffset()
                         self.runEndLocal = self.runEndUtc + datetime.datetime.now(datetime.timezone.utc).astimezone().utcoffset()
                         
-                        utils.writeToFile.write('routes.json', json.dumps(self.currentRun, indent=4, sort_keys=True))
+                        # utils.writeToFile.write('routes.json', json.dumps(self.currentRun, indent=4, sort_keys=True))
                         
                         self.running = False
                         for departure in self.currentRun['departures']:

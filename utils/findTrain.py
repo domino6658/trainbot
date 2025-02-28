@@ -20,7 +20,9 @@ import utils.findDistance
 import utils.parseTimestamp
 import utils.ptvApi
 import utils.writeToFile
+from utils import getConfig
 
+config = getConfig.Config()
 
 class Train(object):
     def __init__(self, carriage: str):
@@ -242,7 +244,7 @@ class Train(object):
                         self.stationLatitude = self.currentRun['stops'][self.stationId]['stop_latitude']
                         self.stationLongitude = self.currentRun['stops'][self.stationId]['stop_longitude']
                         self.map = f'https://www.google.com/maps/search/{self.runLatitude},{self.runLongitude}/'
-                        self.image = f'https://maps.googleapis.com/maps/api/staticmap?center={self.runLatitude},{self.runLongitude}&map_id=3b4527fbc6823f42&zoom=15&size=1000x1000&key=AIzaSyC25xqZry4v9NvopvFfkKnEKBY3r4wvpt8'
+                        self.image = f'https://maps.googleapis.com/maps/api/staticmap?center={self.runLatitude},{self.runLongitude}&map_id=3b4527fbc6823f42&zoom=15&size=1000x1000&key={config.google_api_key}'
                         response = requests.get(self.image)
 
                         # with open('map.png', 'wb') as f:

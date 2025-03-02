@@ -1,4 +1,3 @@
-from playsound import playsound
 from io import BytesIO
 import discord
 from discord.ext import commands
@@ -348,7 +347,6 @@ class Train(object):
                         print(type(e).__name__)
                         print(str(e))
                         print(traceback.format_exc())
-                        playsound('misc/sounds/error.mp3')
                 
                 task = loop.create_task(getRunsInfo(carriageRunRefs))
                 task.add_done_callback(callback2)

@@ -12,9 +12,12 @@ from discord.ext import commands
 from discord import app_commands
 import requests
 import asyncio
-from playsound import playsound
 import traceback
 import datetime
+import os
+if os.name != 'posix':
+    from playsound import playsound
+
 
 from math import radians, cos, sin, asin, sqrt
 

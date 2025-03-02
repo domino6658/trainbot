@@ -1,8 +1,9 @@
 from utils import getConfig
 import utils.trainInfo
+from utils import serverCommands
 config = getConfig.Config()
 import utils.math
-import utils.writeToFile
+from utils import writeToFile
 import typing
 import json
 import utils.findTrain
@@ -48,6 +49,19 @@ async def on_ready():
     print('------')
     if os.name != 'posix':
         playsound('misc/sounds/startup.mp3')
+    with open('utils/restartmsg.txt', 'r') as f:
+        msginfo = f.read().split(',')
+    msgid = msginfo[1]
+    channelid = msginfo[0]
+        
+    channel = bot.get_channel(int(channelid))
+    if not channel:
+        channel = await bot.fetch_channel(int(channelid))
+    
+    msg = await channel.fetch_message(int(msgid))
+    
+    if msg.content == 'Restarting...':
+        await msg.edit(content='Restarted!')
 
 
 @search.command(name='train', description='Search for a train carriage on the network.')
@@ -179,7 +193,21 @@ async def _searchdepartures(ctx: commands.Context, *, input_string: str):
     await ctx.send('done!')
     
     
-    
+@bot.command()
+async def restart(ctx: commands.Context):
+    msg = await ctx.send('Restarting...')
+    writeToFile.write('utils/restartmsg.txt', f'{msg.channel.id},{msg.id}')
+    await serverCommands.send(
+        [
+        "source ~/.venvs/trainbot/bin/activate",
+        "cd ~/github/trainbot",
+        "git pull",
+        "rm nohup.out",
+        "nohup python bot.py &"
+        ],
+        bot,
+        exit=True
+    )
 
 
 # Sync command

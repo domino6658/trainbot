@@ -61,7 +61,7 @@ async def on_ready():
     msg = await channel.fetch_message(int(msgid))
     
     if msg.content == 'Restarting...':
-        await msg.edit(content='Restarted!')
+        await msg.edit(content='Restarted!\nIf this message is still here, the restart was successful.')
 
 
 @search.command(name='train', description='Search for a train carriage on the network.')

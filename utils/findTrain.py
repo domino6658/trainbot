@@ -4,7 +4,6 @@ from discord.ext import commands
 import datetime
 from hashlib import sha1
 import hmac
-from dotenv import dotenv_values
 import os
 import json
 import requests

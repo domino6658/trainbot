@@ -46,7 +46,8 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    playsound('misc/sounds/startup.mp3')
+    if os.name != 'posix':
+        playsound('misc/sounds/startup.mp3')
 
 
 @search.command(name='train', description='Search for a train carriage on the network.')
